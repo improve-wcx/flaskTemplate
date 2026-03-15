@@ -16,6 +16,22 @@ def hello():
     return "Hello, World!"
 
 
+@app.route("/favicon.ico")
+def favicon():
+    logger.debug("handling favicon route")
+    return "", 204
+
+@app.route("/error")
+def error():
+    # Route to demonstrate exception logging; will raise and be captured by Flask
+    try:
+        logger.error("An error occurred")
+        raise RuntimeError("demonstration error")
+    except Exception:
+        logger.exception("An error occurred in /error")
+    return "error"
+
+
 if __name__ == "__main__":
     # Development server
     app.run(host="127.0.0.1", port=5000, debug=True)
