@@ -9,7 +9,7 @@
 """
 
 from flask import Blueprint, request, jsonify
-from app.proto import helloworld_pb2, common_pb2
+from app.proto import demo_pb2, common_pb2
 from google.protobuf.json_format import ParseDict, MessageToDict
 import uuid
 from datetime import datetime
@@ -39,7 +39,7 @@ def hello_get():
     """
     request_id = generate_request_id()
     
-    response_msg = helloworld_pb2.HelloResponse(
+    response_msg = demo_pb2.HelloResponse(
         message="Hello, World!",
         timestamp=datetime.now().isoformat(),
         request_id=request_id
@@ -73,12 +73,12 @@ def hello_post():
             return jsonify({"error": "Invalid JSON", "request_id": request_id}), 400
         
         # JSON -> Protobuf
-        request_msg = helloworld_pb2.HelloRequest()
+        request_msg = demo_pb2.HelloRequest()
         ParseDict(json_data, request_msg)
         
         name = request_msg.name if request_msg.name else "World"
         
-        response_msg = helloworld_pb2.HelloResponse(
+        response_msg = demo_pb2.HelloResponse(
             message=f"Hello, {name}!",
             timestamp=datetime.now().isoformat(),
             request_id=request_id
@@ -132,7 +132,7 @@ def get_user(user_id):
         
         user_data = mock_users[user_id]
         
-        response_msg = helloworld_pb2.UserInfoResponse(
+        response_msg = demo_pb2.UserInfoResponse(
             success=True,
             request_id=request_id,
             message="User found"
@@ -183,7 +183,7 @@ def list_users():
     try:
         json_data = request.get_json() or {}
         
-        request_msg = helloworld_pb2.UserListRequest()
+        request_msg = demo_pb2.UserListRequest()
         ParseDict(json_data, request_msg)
         
         page = request_msg.page if request_msg.page else 1
@@ -203,7 +203,7 @@ def list_users():
                 "age": 20 + (int(user_id) % 50)
             })
         
-        response_msg = helloworld_pb2.UserListResponse(
+        response_msg = demo_pb2.UserListResponse(
             success=True,
             total=total_users,
             page=page,

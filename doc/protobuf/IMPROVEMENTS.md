@@ -2,10 +2,10 @@
 
 ## 改进概述
 
-本次改进对 `demo_protobuf.py` (原 `helloworld.py`) 进行了以下优化：
+本次改进对 `demo_protobuf.py` (原 `demo_protobuf.py`) 进行了以下优化：
 
 ### 1. 文件重命名
-- **旧名称**: `helloworld.py` - 过于随意，不能反映实际业务
+- **旧名称**: `demo_protobuf.py` - 过于随意，不能反映实际业务
 - **新名称**: `demo_protobuf.py` - 明确表达这是 Protocol Buffers 演示接口
 
 ### 2. RESTful 设计改进
@@ -100,7 +100,7 @@ curl -X POST http://localhost:5000/api/v1/demo/users \
 ## 技术改进
 
 ### 1. 蓝图名称
-- **旧**: `helloworld_bp`
+- **旧**: `demo_protobuf_bp`
 - **新**: `demo_protobuf_bp`
 
 ### 2. Request ID 优化
@@ -137,8 +137,8 @@ curl -X POST http://localhost:5000/api/v1/demo/users \
 
 ```bash
 # 恢复旧文件
-git checkout HEAD -- app/routes/helloworld.py
-git checkout HEAD -- tests/test_routes/test_helloworld.py
+git checkout HEAD -- app/routes/demo_protobuf.py
+git checkout HEAD -- tests/test_routes/test_demo_protobuf.py
 
 # 恢复 app/__init__.py
 git checkout HEAD -- app/__init__.py

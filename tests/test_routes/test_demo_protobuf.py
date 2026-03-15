@@ -1,7 +1,7 @@
 """ Protocol Buffers 演示接口单元测试 """
 import json
 import pytest
-from app.proto import helloworld_pb2, common_pb2
+from app.proto import demo_pb2, common_pb2
 
 
 @pytest.fixture
@@ -73,12 +73,12 @@ class TestDemoProtobufPost:
     
     def test_hello_request(self):
         """测试 HelloRequest 创建"""
-        req = helloworld_pb2.HelloRequest(name="Test")
+        req = demo_pb2.HelloRequest(name="Test")
         assert req.name == "Test"
     
     def test_hello_response(self):
         """测试 HelloResponse 创建"""
-        resp = helloworld_pb2.HelloResponse(
+        resp = demo_pb2.HelloResponse(
             message="Hello!",
             timestamp="2026-03-16T10:00:00",
             request_id="test-id"

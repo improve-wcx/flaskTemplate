@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package helloworld;
+package demo;
 
 // ============================================================================
 // Hello World 接口消息

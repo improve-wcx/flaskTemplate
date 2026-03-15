@@ -26,16 +26,16 @@
 ```
 projectTemplate/
 ├── proto/                          # Proto 文件目录
-│   ├── helloworld.proto           # Hello World 示例
+│   ├── demo.proto           # Hello World 示例
 │   └── common.proto               # 通用消息定义
 ├── app/
 │   ├── proto/                     # 生成的 Python 代码
-│   │   ├── helloworld_pb2.py
-│   │   ├── helloworld_pb2.pyi
+│   │   ├── demo_pb2.py
+│   │   ├── demo_pb2.pyi
 │   │   ├── common_pb2.py
 │   │   └── common_pb2.pyi
 │   └── routes/
-│       └── helloworld.py          # Flask 路由示例
+│       └── demo_protobuf.py          # Flask 路由示例
 └── doc/protobuf/                  # 本文档目录
     └── README.md                  # 使用指南
 ```
@@ -47,7 +47,7 @@ projectTemplate/
 ```protobuf
 syntax = "proto3";
 
-package helloworld;
+package demo;
 
 message HelloRequest {
   string name = 1;
@@ -70,7 +70,7 @@ python scripts/generate_protobuf.py
 
 ```python
 from flask import request, jsonify
-from app.proto import helloworld_pb2
+from app.proto import demo_pb2
 from google.protobuf.json_format import ParseDict, MessageToDict
 
 @app.route('/api/v1/hello', methods=['POST'])
@@ -78,12 +78,12 @@ def hello():
     json_data = request.get_json()
     
     # JSON -> Protobuf
-    request_msg = helloworld_pb2.HelloRequest()
+    request_msg = demo_pb2.HelloRequest()
     ParseDict(json_data, request_msg)
     
     # 处理业务逻辑
     name = request_msg.name if request_msg.name else "World"
-    response_msg = helloworld_pb2.HelloResponse(
+    response_msg = demo_pb2.HelloResponse(
         message=f"Hello, {name}!",
         timestamp=datetime.now().isoformat(),
         request_id=generate_request_id()
@@ -103,7 +103,7 @@ def hello():
 from google.protobuf.json_format import ParseDict, MessageToDict
 
 # JSON -> Protobuf
-request_msg = helloworld_pb2.HelloRequest()
+request_msg = demo_pb2.HelloRequest()
 ParseDict({"name": "Alice"}, request_msg)
 
 # Protobuf -> JSON
@@ -117,7 +117,7 @@ response_dict = MessageToDict(response_msg)
 binary_data = response_msg.SerializeToString()
 
 # 反序列化
-request_msg = helloworld_pb2.HelloRequest()
+request_msg = demo_pb2.HelloRequest()
 request_msg.ParseFromString(binary_data)
 ```
 

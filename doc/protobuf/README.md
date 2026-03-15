@@ -20,17 +20,17 @@
 ```
 projectTemplate/
 ├── proto/                          # Proto 文件目录
-│   ├── helloworld.proto           # Hello World 示例（学习用）
+│   ├── demo.proto           # Hello World 示例（学习用）
 │   └── common.proto               # 通用消息定义
 ├── app/
 │   ├── proto/                     # 生成的 Python 代码
 │   │   ├── __init__.py
-│   │   ├── helloworld_pb2.py      # 生成的消息类
-│   │   ├── helloworld_pb2.pyi     # 类型提示文件
+│   │   ├── demo_pb2.py      # 生成的消息类
+│   │   ├── demo_pb2.pyi     # 类型提示文件
 │   │   ├── common_pb2.py
 │   │   └── common_pb2.pyi
 │   └── routes/
-│       └── helloworld.py          # Flask 路由示例
+│       └── demo_protobuf.py          # Flask 路由示例
 ├── scripts/
 │   └── generate_protobuf.py       # 代码生成脚本
 └── Makefile                       # 构建命令
@@ -156,7 +156,7 @@ def create_user():
 
 ```python
 from flask import request, jsonify
-from app.proto import helloworld_pb2
+from app.proto import demo_pb2
 
 @app.route('/hello', methods=['POST'])
 def hello():
@@ -164,14 +164,14 @@ def hello():
     json_data = request.get_json()
     
     # 转换为 protobuf 消息
-    request_msg = helloworld_pb2.HelloRequest()
+    request_msg = demo_pb2.HelloRequest()
     request_msg.FromDict(json_data)
     
     # 处理...
     name = request_msg.name
     
     # 创建响应
-    response_msg = helloworld_pb2.HelloResponse(
+    response_msg = demo_pb2.HelloResponse(
         message=f"Hello, {name}!"
     )
     
@@ -192,13 +192,13 @@ def hello_binary():
     raw_data = request.get_data()
     
     # 反序列化
-    request_msg = helloworld_pb2.HelloRequest()
+    request_msg = demo_pb2.HelloRequest()
     request_msg.ParseFromString(raw_data)
     
     # 处理...
     
     # 创建响应并序列化
-    response_msg = helloworld_pb2.HelloResponse(
+    response_msg = demo_pb2.HelloResponse(
         message=f"Hello, {request_msg.name}!"
     )
     
@@ -297,9 +297,9 @@ message MyResponse {
 ### 类型提示示例
 
 ```python
-from app.proto import helloworld_pb2
+from app.proto import demo_pb2
 
-def process_request(req: helloworld_pb2.HelloRequest) -> None:
+def process_request(req: demo_pb2.HelloRequest) -> None:
     # IDE 会提示所有可用字段
     print(req.name)  # 自动补全
     print(req.DESCRIPTOR)  # 类型检查
@@ -342,7 +342,7 @@ message UserResponse {
 
 ## 参考示例
 
-查看 `app/routes/helloworld.py` 获取完整的实现示例：
+查看 `app/routes/demo_protobuf.py` 获取完整的实现示例：
 
 - JSON 格式接口
 - 二进制格式接口
