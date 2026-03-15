@@ -2,7 +2,7 @@
 
 一个结构化的 Flask 项目模板，支持模块化开发和多环境配置。
 
-## 快速开始
+## 🚀 快速开始
 
 ### 1. 安装依赖
 
@@ -29,7 +29,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
 pytest tests/ -v
 ```
 
-## 项目特点
+## ✨ 项目特点
 
 - **JSON 配置** - 统一管理所有环境配置
 - **模块化路由** - 按功能拆分路由模块
@@ -39,7 +39,35 @@ pytest tests/ -v
 - **Protocol Buffers** - 支持 protobuf 数据序列化
 - **命令行客户端** - 所有 API 接口均可通过 CLI 调用
 
-## 命令行客户端
+## 🛠️ 如何添加新接口
+
+添加一个新接口需要完成以下步骤：
+
+### 1. 创建路由文件
+
+在 `app/routes/` 创建新文件（如 `app/routes/users.py`）
+
+### 2. 注册路由
+
+在 `app/__init__.py` 中注册新蓝图
+
+### 3. 添加 CLI 支持
+
+在 `cli.py` 中添加对应的命令行命令
+
+### 4. 编写单元测试
+
+在 `tests/test_routes/` 创建测试文件
+
+### 5. 更新文档
+
+- `doc/routes/README.md` - 添加路由说明
+- `doc/cli/README.md` - 添加 CLI 命令说明
+- 可选：在 `doc/api/` 添加详细 API 文档
+
+**详细说明**: [开发者指南 - 如何添加新接口](doc/getting-started.md#如何添加新接口)
+
+## 📱 命令行客户端
 
 所有 Web API 接口都可通过命令行客户端访问：
 
@@ -64,7 +92,7 @@ python cli.py echo --data '{"key": "value"}'
 
 详细使用说明请参考：[命令行客户端指南](doc/cli/README.md)
 
-## 示例接口
+## 📄 示例接口
 
 项目包含一个 **Protocol Buffers 演示** (`/api/v1/demo`)，展示如何在 Flask 中使用 protobuf：
 
@@ -92,12 +120,25 @@ curl -X POST http://localhost:5000/api/v1/demo/users \
   -d '{"page": 1, "page_size": 10}'
 ```
 
-## 文档
+## 📚 文档
 
 详细文档请查看 [doc/](doc/) 目录：
 
-- [部署指南](doc/deployment/README.md) - 运行和部署说明
-- [路由开发](doc/routes/development.md) - 如何添加路由
+### 核心文档
+
+- **[开发者指南](doc/getting-started.md)** ⭐ 必读 - 如何添加接口、测试规范等
+- **[部署指南](doc/deployment/README.md)** - 运行和部署说明
+- **[CLI 使用指南](doc/cli/README.md)** - 命令行客户端详解
+- **[路由开发](doc/routes/development.md)** - 如何添加路由
+- **[Protobuf 指南](doc/protobuf/README.md)** - 数据序列化说明
+
+### 其他文档
+
+- [日志系统](doc/log/README.md)
+- [API 设计](doc/api/README.md)
+- [测试指南](doc/testing/README.md)
+- [数据模型](doc/models/README.md)
+- [服务层](doc/services/README.md)
 - [API 设计](doc/api/README.md) - API 设计规范
 - [测试指南](doc/testing/README.md) - 编写单元测试
 - [项目架构](doc/deployment/architecture.md) - 架构说明

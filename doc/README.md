@@ -1,54 +1,144 @@
 # 项目文档索引
 
-## 目录结构
+> 完整的项目文档，涵盖开发、部署、API 使用等各个方面。
+
+## 📚 文档结构
 
 ```
 doc/
-├── README.md              # 本文档 - 项目文档总索引
-├── log/                   # 日志系统文档
-│   ├── README.md          # 日志系统总览
-│   ├── format.md          # 日志格式规范
-│   ├── usage.md           # 使用方法指南
-│   ├── request_id.md      # Request ID 追踪详解
-│   ├── architecture.md    # 架构设计
-│   └── REQUEST_ID_GUIDE.md # Request ID 使用指南 (详细版)
-├── protobuf/              # Protocol Buffers 文档
-│   ├── INDEX.md           # Protocol Buffers 总览
-│   └── README.md          # 使用指南 (详细版)
-├── api/                   # API 接口文档
-├── routes/                # 路由模块文档
-├── models/                # 数据模型文档
-├── services/              # 业务逻辑层文档
+├── README.md              # 本文档 - 总索引
+├── getting-started.md     # 🚀 开发者指南（新增）
+├── cli/                   # 命令行客户端
+│   └── README.md
+├── log/                   # 日志系统
+│   ├── README.md
+│   ├── format.md
+│   ├── usage.md
+│   └── architecture.md
+├── protobuf/              # Protocol Buffers
+│   ├── README.md
+│   └── INDEX.md
+├── routes/                # 路由模块
+│   ├── README.md
+│   └── development.md
+├── api/                   # API 接口
+│   └── README.md
 ├── deployment/            # 部署文档
-└── testing/               # 测试文档
+│   └── README.md
+├── testing/               # 测试
+│   └── README.md
+├── models/                # 数据模型
+│   └── README.md
+└── services/              # 业务逻辑
+    └── README.md
 ```
 
-## 快速导航
+## 🎯 快速导航
 
-### 核心文档
-- [📋 日志系统文档](log/README.md) - 日志格式、使用方法和 Request ID 追踪
-- [🔧 Protocol Buffers 文档](protobuf/INDEX.md) - 使用 protobuf 定义数据结构
-- [🚀 部署指南](deployment/README.md) - 如何运行和部署项目
-- [🛣️ 路由开发](routes/README.md) - 如何添加和修改路由
-- [🔌 API 设计](api/README.md) - API 接口规范
-- [📊 数据模型](models/README.md) - 数据模型设计
-- [⚙️ 业务逻辑](services/README.md) - 服务层开发
-- [🧪 单元测试](testing/README.md) - 测试编写指南
+### 新手入门
 
-## 开发者指南
+1. **[开发者指南](getting-started.md)** ⭐ 必读
+   - 如何添加新接口
+   - 如何添加 Protobuf
+   - 测试规范
+   - 文档规范
 
-### 新开发者入门
-1. 阅读 [部署/快速开始](deployment/quick-start.md)
-2. 了解项目 [架构说明](deployment/architecture.md)
-3. 查看 [路由开发指南](routes/development.md)
-4. 了解 [日志系统](log/README.md) - 如何查看和分析日志
-5. 学习 [Protocol Buffers](protobuf/INDEX.md) - 数据序列化方式
+2. **[快速部署](deployment/README.md)**
+   - 开发环境设置
+   - 生产环境部署
+   - Protobuf 编译
 
-### 拓展模块
-- 添加新路由 → 参考 `routes/development.md`
-- 添加新 API → 参考 `api/development.md`
-- 添加数据模型 → 参考 `models/development.md`
-- 添加业务逻辑 → 参考 `services/development.md`
+### 核心功能
 
-### 配置管理
-- 查看 [配置系统文档](deployment/configuration.md)
+- **[CLI 使用指南](cli/README.md)** - 命令行客户端
+- **[日志系统](log/README.md)** - 结构化日志和 Request ID
+- **[Protobuf 指南](protobuf/README.md)** - 数据序列化
+- **[路由开发](routes/README.md)** - 添加和修改路由
+
+### 进阶主题
+
+- **[API 设计](api/README.md)** - RESTful API 规范
+- **[测试指南](testing/README.md)** - 单元测试编写
+- **[数据模型](models/README.md)** - 模型设计
+- **[服务层](services/README.md)** - 业务逻辑实现
+
+## 📖 文档阅读顺序
+
+### 新开发者
+
+1. 开发者指南
+2. 快速部署
+3. CLI 使用
+4. 路由开发
+5. Protobuf 指南
+6. 测试指南
+
+### 添加新功能
+
+1. 开发者指南
+2. 添加接口流程
+3. 编写测试
+4. 更新文档
+
+## 🔍 按主题查找
+
+### 开发相关
+
+- **添加接口**: [开发者指南 - 如何添加新接口](getting-started.md#如何添加新接口)
+- **添加 Protobuf**: [开发者指南 - 如何添加 Protocol Buffers](getting-started.md#如何添加-protocol-buffers)
+- **路由开发**: [路由开发指南](routes/development.md)
+- **API 设计**: [API 文档](api/README.md)
+
+### 部署相关
+
+- **环境设置**: [部署指南 - 开发环境](deployment/README.md#开发环境设置)
+- **生产部署**: [部署指南 - 生产环境](deployment/README.md#生产环境部署)
+- **Protobuf 编译**: [部署指南 - Protobuf 编译](deployment/README.md#protobuf-编译)
+- **故障排查**: [部署指南 - 故障排查](deployment/README.md#故障排查)
+
+### 测试相关
+
+- **测试编写**: [开发者指南 - 测试规范](getting-started.md#测试规范)
+- **测试运行**: [测试指南](testing/README.md)
+
+### 工具使用
+
+- **CLI 客户端**: [CLI 使用指南](cli/README.md)
+- **日志查看**: [日志系统](log/README.md)
+- **Protobuf**: [Protobuf 指南](protobuf/README.md)
+
+## 📝 文档维护
+
+### 何时更新文档
+
+- ✅ 添加新接口时
+- ✅ 修改现有接口行为时
+- ✅ 添加/修改 CLI 命令时
+- ✅ 更新配置项时
+- ✅ 部署流程变化时
+- ✅ 发现文档错误时
+
+### 文档质量检查
+
+- [ ] 内容准确无误
+- [ ] 示例代码可运行
+- [ ] 链接正确有效
+- [ ] 语言简明扼要
+- [ ] 与代码版本同步
+
+## 🤝 贡献文档
+
+1. 找到相关文档文件
+2. 使用 Markdown 格式
+3. 添加清晰的标题和示例
+4. 提交 Pull Request
+
+## 📞 问题反馈
+
+如发现文档问题或需要补充内容，请：
+1. 创建 Issue 描述问题
+2. 或直接提交 PR 修复
+
+---
+
+**最后更新**: 2026-03-16
