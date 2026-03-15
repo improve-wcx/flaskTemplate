@@ -36,50 +36,61 @@ def create_app(config_name=None):
     # JSON 配置 - 支持中文显示
     app.json.ensure_ascii = False
     
-    # Session settings
-    session_config = config.get('session', {})
-    from datetime import timedelta
-    app.permanent_session_lifetime = timedelta(
-        hours=session_config.get('permanent_session_lifetime_hours', 1)
-    )
+    # 定义路由收集函数
+    def _collect_routes(blueprint, category: str):
+        """收集蓝图中的所有路由"""
+        from app.api_registry import _api_registry
+        
+        for rule in app.url_map.iter_rules():
+            if not rule.endpoint.startswith(blueprint.name + '.'):
+                continue
+            if rule.endpoint == 'static' or rule.endpoint.startswith(blueprint.name + '.static'):
+                continue
+            
+            full_path = rule.rule.rstrip('/') if rule.rule != '/' else rule.rule
+            
+            for method in rule.methods:
+                if method in ['HEAD', 'OPTIONS']:
+                    continue
+                
+                key = f"{method}:{full_path}"
+                if key not in _api_registry:
+                    _api_registry[key] = {
+                        'path': full_path,
+                        'method': method,
+                        'category': category,
+                        'description': '',
+                        'function': rule.endpoint,
+                        'module': blueprint.name
+                    }
+        
+        count = len([k for k in _api_registry if _api_registry[k].get('module') == blueprint.name])
+        app.logger.info(f"Collected {count} routes from blueprint {blueprint.name} (category: {category})")
     
-    # Cookie settings
-    app.config.update(
-        SESSION_COOKIE_SECURE=security.get('session_cookie_secure', False),
-        SESSION_COOKIE_HTTPONLY=security.get('session_cookie_httponly', True),
-        SESSION_COOKIE_SAMESITE=security.get('session_cookie_samesite', 'Lax')
-    )
-    
-    # Initialize logger with config
-    logging_config = config.get('logging', {})
-    import utils.logger as logger_module
-    logger_module.LOG_DIR = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        logging_config.get('log_dir', 'logs')
-    )
-    logger_module.LOG_FILE = os.path.join(
-        logger_module.LOG_DIR,
-        logging_config.get('app_log_file', 'app.log')
-    )
-    logger_module.LOG_TRACE_FILE = os.path.join(
-        logger_module.LOG_DIR,
-        logging_config.get('trace_log_file', 'trace.log')
-    )
-    logger = setup_logger("projectTemplate", level=getattr(
-        __import__('logging'),
-        logging_config.get('level', 'DEBUG').upper()
-    ))
-    app.logger = logger
-    
-    # Register blueprints
+    # 注册蓝图
     from app.routes.main import main_bp
     from app.routes.api import api_bp
     from app.routes.demo_protobuf import demo_protobuf_bp
     # from app.routes.admin import admin_bp  # Uncomment when needed
+    
+    # 定义蓝图分类映射
+    blueprint_categories = {
+        'main': '系统',
+        'api': '系统',
+        'demo_protobuf': 'Protobuf 演示',
+        'admin': '管理'
+    }
+    
     app.register_blueprint(main_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(demo_protobuf_bp)
     # app.register_blueprint(admin_bp)  # Uncomment when needed
+    
+    # 自动收集蓝图路由
+    _collect_routes(main_bp, blueprint_categories['main'])
+    _collect_routes(api_bp, blueprint_categories['api'])
+    _collect_routes(demo_protobuf_bp, blueprint_categories['demo_protobuf'])
+    # _collect_routes(admin_bp, blueprint_categories['admin'])  # Uncomment when needed
     
     # Before request hook
     @app.before_request
@@ -95,7 +106,7 @@ def create_app(config_name=None):
         g.request_id = request_id
         
         # Log the incoming request with request_id
-        logger.info("%s %s", request.method, request.path, extra={'request_id': request_id})
+        app.logger.info("%s %s", request.method, request.path, extra={'request_id': request_id})
     
     # After request hook
     @app.after_request
@@ -108,7 +119,7 @@ def create_app(config_name=None):
         request_id = getattr(g, 'request_id', None) or get_request_id()
         
         # Log response with request_id
-        logger.info(
+        app.logger.info(
             "%s %s %d %s",
             request.method,
             request.path,

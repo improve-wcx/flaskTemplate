@@ -19,17 +19,21 @@ def app():
     """Create application for testing."""
     import tempfile
     from app import create_app
-    from utils.logger import setup_logger
     
     # Create temp directory for logs
     tmp_dir = tempfile.mkdtemp()
     log_dir = os.path.join(tmp_dir, 'logs')
     os.makedirs(log_dir, exist_ok=True)
     
-    # Set up temp log files
+    # Set up temp log files BEFORE creating app
     from utils import logger as logger_module
+    logger_module.LOG_DIR = log_dir
     logger_module.LOG_FILE = os.path.join(log_dir, 'app.log')
     logger_module.LOG_TRACE_FILE = os.path.join(log_dir, 'trace.log')
+    
+    # Create the log files immediately
+    open(logger_module.LOG_FILE, 'a', encoding='utf-8').close()
+    open(logger_module.LOG_TRACE_FILE, 'a', encoding='utf-8').close()
     
     # Create app with testing config
     app = create_app('testing')
@@ -37,12 +41,12 @@ def app():
     
     yield app
     
-    # Cleanup (optional)
-    import shutil
-    try:
-        shutil.rmtree(tmp_dir)
-    except:
-        pass
+    # Cleanup disabled to allow log inspection
+    # import shutil
+    # try:
+    #     shutil.rmtree(tmp_dir)
+    # except:
+    #     pass
 
 
 @pytest.fixture

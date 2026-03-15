@@ -1,62 +1,9 @@
-"""
-API routes - for future REST API endpoints
-"""
+""" API routes - for future REST API endpoints """
 from flask import Blueprint, jsonify, current_app
 from utils.logger import get_request_id
+from app.api_registry import get_apis_by_category
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
-
-# 服务支持的接口列表
-AVAILABLE_APIS = [
-    {
-        "path": "/api/health",
-        "method": "GET",
-        "description": "健康检查",
-        "category": "系统"
-    },
-    {
-        "path": "/api/version",
-        "method": "GET",
-        "description": "版本信息",
-        "category": "系统"
-    },
-    {
-        "path": "/api/v1/demo/hello",
-        "method": "GET",
-        "description": "简单问候",
-        "category": "Protobuf 演示"
-    },
-    {
-        "path": "/api/v1/demo/hello",
-        "method": "POST",
-        "description": "带参数的问候",
-        "category": "Protobuf 演示"
-    },
-    {
-        "path": "/api/v1/demo/user/<user_id>",
-        "method": "GET",
-        "description": "获取用户信息",
-        "category": "Protobuf 演示"
-    },
-    {
-        "path": "/api/v1/demo/users",
-        "method": "POST",
-        "description": "获取用户列表",
-        "category": "Protobuf 演示"
-    },
-    {
-        "path": "/api/v1/demo/echo",
-        "method": "POST",
-        "description": "Echo 接口",
-        "category": "Protobuf 演示"
-    },
-    {
-        "path": "/apis",
-        "method": "GET",
-        "description": "查询所有可用接口",
-        "category": "系统"
-    }
-]
 
 @api_bp.route('/health')
 def health_check():
@@ -81,20 +28,14 @@ def list_apis():
     """
     request_id = get_request_id()
     
-    # 按分类分组
-    categorized_apis = {}
-    for api in AVAILABLE_APIS:
-        category = api['category']
-        if category not in categorized_apis:
-            categorized_apis[category] = []
-        categorized_apis[category].append({
-            'path': api['path'],
-            'method': api['method'],
-            'description': api['description']
-        })
+    # 动态获取所有注册的接口
+    categorized_apis = get_apis_by_category()
+    
+    # 计算总数
+    total = sum(len(apis) for apis in categorized_apis.values())
     
     return jsonify({
-        'total': len(AVAILABLE_APIS),
+        'total': total,
         'apis': categorized_apis,
         'request_id': request_id
     }), 200
