@@ -34,8 +34,37 @@ pytest tests/ -v
 - **JSON 配置** - 统一管理所有环境配置
 - **模块化路由** - 按功能拆分路由模块
 - **结构化日志** - JSON 格式日志输出
-- **完整测试** - 19+ 单元测试覆盖
+- **完整测试** - 10+ 单元测试覆盖
 - **应用工厂** - 灵活的应用创建模式
+- **Protocol Buffers** - 支持 protobuf 数据序列化
+
+## 示例接口
+
+项目包含一个 **Protocol Buffers 演示** (`/api/v1/demo`)，展示如何在 Flask 中使用 protobuf：
+
+### GET 示例
+
+```bash
+# 简单问候
+curl http://localhost:5000/api/v1/demo/hello
+
+# 获取用户
+curl http://localhost:5000/api/v1/demo/user/12345
+```
+
+### POST 示例
+
+```bash
+# 带参数的问候
+curl -X POST http://localhost:5000/api/v1/demo/hello \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Alice"}'
+
+# 获取用户列表
+curl -X POST http://localhost:5000/api/v1/demo/users \
+  -H "Content-Type: application/json" \
+  -d '{"page": 1, "page_size": 10}'
+```
 
 ## 文档
 
@@ -46,6 +75,8 @@ pytest tests/ -v
 - [API 设计](doc/api/README.md) - API 设计规范
 - [测试指南](doc/testing/README.md) - 编写单元测试
 - [项目架构](doc/deployment/architecture.md) - 架构说明
+- [日志系统](doc/log/README.md) - 日志格式和使用
+- [Protocol Buffers](doc/protobuf/README.md) - protobuf 使用指南
 
 ## 技术栈
 
@@ -53,3 +84,21 @@ pytest tests/ -v
 - Python 3.12
 - pytest 9.0
 - Gunicorn
+- Protocol Buffers
+
+## 项目结构
+
+```
+projectTemplate/
+├── app/
+│   ├── routes/
+│   │   └── demo_protobuf.py    # Protobuf 演示接口
+│   ├── services/
+│   └── models/
+├── proto/                       # Proto 文件
+│   ├── helloworld.proto
+│   └── common.proto
+├── tests/                       # 测试
+├── doc/                         # 文档
+└── logs/                        # 日志文件
+```
