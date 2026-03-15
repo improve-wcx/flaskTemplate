@@ -1,3 +1,6 @@
+"""
+Logger module - migrated from root logger.py
+"""
 import logging
 from logging.handlers import RotatingFileHandler
 import os
@@ -6,7 +9,9 @@ import time
 import threading
 import traceback
 
-LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
+# Get the project root directory (parent of utils directory)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOG_DIR = os.path.join(PROJECT_ROOT, "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 LOG_FILE = os.path.join(LOG_DIR, "app.log")
 LOG_TRACE_FILE = os.path.join(LOG_DIR, "trace.log")
@@ -16,7 +21,7 @@ class JSONListFormatter(logging.Formatter):
     """Format log records as a JSON array (list).
 
     Output format (list):
-      [timestamp, level, pid, tid, logger_name, message, extra]
+    [timestamp, level, pid, tid, logger_name, message, extra]
 
     `extra` is a dict that may include `pathname`, `lineno`, and `traceback` (when present).
     """
@@ -89,7 +94,7 @@ def setup_logger(name: str = None, level: int = logging.DEBUG) -> logging.Logger
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    # Trace handler: only records with exception info are written here, include full traceback
+    # Trace handler: only records with exception info are written here, includes full traceback
     trace_handler = RotatingFileHandler(LOG_TRACE_FILE, maxBytes=1024 * 1024, backupCount=3, encoding="utf-8")
     trace_handler.setFormatter(formatter)
     trace_handler.addFilter(ExceptionOnlyFilter())

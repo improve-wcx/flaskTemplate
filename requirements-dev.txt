@@ -1,0 +1,8 @@
+-r requirements.txt
+
+# Testing
+pytest==9.0.2
+pytest-cov==6.0.0
+
+# Development
+python-dotenv==1.0.0
