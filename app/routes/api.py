@@ -22,17 +22,21 @@ def version():
 def list_apis():
     """
     查询当前服务支持的所有 Web 接口
-    
-    返回:
-        JSON 格式，包含所有可用接口的详细信息
+    返回：JSON 格式，包含所有可用接口的详细信息
     """
     request_id = get_request_id()
+    
+    # Log API list request
+    current_app.logger.info("Listing all APIs", extra={'request_id': request_id})
     
     # 动态获取所有注册的接口
     categorized_apis = get_apis_by_category()
     
     # 计算总数
     total = sum(len(apis) for apis in categorized_apis.values())
+    
+    current_app.logger.info(f"Returning {total} APIs across {len(categorized_apis)} categories", 
+                           extra={'request_id': request_id})
     
     return jsonify({
         'total': total,

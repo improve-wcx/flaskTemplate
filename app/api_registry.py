@@ -32,10 +32,10 @@ def register_api(path: str, method: str = "GET", category: str = "默认", descr
             ...
     """
     def decorator(func):
-        # 生成唯一键
+        # Generate unique key
         key = f"{method}:{path}"
         
-        # 注册到全局注册表
+        # Register to global registry
         _api_registry[key] = {
             'path': path,
             'method': method,
@@ -46,12 +46,14 @@ def register_api(path: str, method: str = "GET", category: str = "默认", descr
         }
         
         logger.debug(f"Registered API: {method} {path} [{category}]")
+        print(f"[DEBUG] API registered: {method} {path} [{category}]")
         
         @wraps(func)
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
         
         return wrapper
+    
     return decorator
 
 
@@ -82,6 +84,8 @@ def get_apis_by_category() -> Dict[str, List[dict]]:
             'method': api['method'],
             'description': api['description']
         })
+    
+    logger.info(f"Retrieved APIs for {len(categorized)} categories")
     return categorized
 
 

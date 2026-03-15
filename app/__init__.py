@@ -9,32 +9,42 @@ from utils.logger import setup_logger
 from config import get_config
 
 def create_app(config_name=None):
-    """ Application factory function.
+    """
+    Application factory function.
+    
     Args:
         config_name: Configuration name ('development', 'testing', 'production')
+    
     Returns:
         Configured Flask application instance
     """
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
     
+    # Log application initialization
+    print(f"[INFO] Initializing Flask application with config: {config_name}")
+    
     # Load configuration from JSON
     config = get_config(config_name)
+    print(f"[INFO] Configuration loaded successfully")
     
     # Create Flask app
     app = Flask(__name__)
+    print(f"[INFO] Flask app instance created")
     
     # Apply configuration
     app_config = config.get('app', {})
     app.debug = app_config.get('debug', False)
     app.testing = app_config.get('testing', False)
+    print(f"[INFO] Configuration applied: debug={app.debug}, testing={app.testing}")
     
     # Security settings
     security = config.get('security', {})
     app.secret_key = security.get('secret_key', 'dev-secret-key')
     
-    # JSON 配置 - 支持中文显示
+    # JSON configuration - support Chinese characters
     app.json.ensure_ascii = False
+    print(f"[INFO] JSON encoding configured for Chinese support")
     
     # 定义路由收集函数
     def _collect_routes(blueprint, category: str):
@@ -81,16 +91,23 @@ def create_app(config_name=None):
         'admin': '管理'
     }
     
+    print(f"[INFO] Registering blueprints...")
     app.register_blueprint(main_bp)
+    print(f"[INFO] Registered blueprint: main_bp")
     app.register_blueprint(api_bp)
+    print(f"[INFO] Registered blueprint: api_bp")
     app.register_blueprint(demo_protobuf_bp)
+    print(f"[INFO] Registered blueprint: demo_protobuf_bp")
     # app.register_blueprint(admin_bp)  # Uncomment when needed
     
-    # 自动收集蓝图路由
+    # Auto-collect blueprint routes
+    print(f"[INFO] Collecting routes from blueprints...")
     _collect_routes(main_bp, blueprint_categories['main'])
     _collect_routes(api_bp, blueprint_categories['api'])
     _collect_routes(demo_protobuf_bp, blueprint_categories['demo_protobuf'])
     # _collect_routes(admin_bp, blueprint_categories['admin'])  # Uncomment when needed
+    
+    print(f"[INFO] Route collection completed")
     
     # Before request hook
     @app.before_request
@@ -130,5 +147,9 @@ def create_app(config_name=None):
         
         return response
     
-    # Return the app instance
+    # Log application ready
+    from app.api_registry import get_registry_count
+    print(f"[INFO] Flask application initialized successfully")
+    print(f"[INFO] Total APIs registered: {get_registry_count()}")
+    
     return app

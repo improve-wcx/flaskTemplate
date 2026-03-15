@@ -8,14 +8,17 @@
 - 每个方法只保留一个典型接口，便于理解
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from app.proto import demo_pb2, common_pb2
 from google.protobuf.json_format import ParseDict, MessageToDict
 import uuid
 from datetime import datetime
+import logging
 
 # 创建蓝图
 demo_protobuf_bp = Blueprint('demo_protobuf', __name__, url_prefix='/api/v1/demo')
+
+logger = logging.getLogger(__name__)
 
 
 def generate_request_id():
@@ -38,6 +41,7 @@ def hello_get():
     }
     """
     request_id = generate_request_id()
+    logger.info(f"[HELLO_GET] Processing request, request_id={request_id}")
     
     response_msg = demo_pb2.HelloResponse(
         message="Hello, World!",
@@ -45,6 +49,7 @@ def hello_get():
         request_id=request_id
     )
     
+    logger.info(f"[HELLO_GET] Response generated successfully")
     return jsonify(MessageToDict(response_msg)), 200
 
 
@@ -52,12 +57,10 @@ def hello_get():
 def hello_post():
     """
     POST 示例：带参数的问候
-    
     请求体 (JSON):
     {
         "name": "Alice"
     }
-    
     响应:
     {
         "message": "Hello, Alice!",
@@ -66,17 +69,21 @@ def hello_post():
     }
     """
     request_id = generate_request_id()
+    logger.info(f"[HELLO_POST] Processing request, request_id={request_id}")
     
     try:
         json_data = request.get_json()
         if not json_data:
+            logger.warning(f"[HELLO_POST] Invalid JSON received")
             return jsonify({"error": "Invalid JSON", "request_id": request_id}), 400
         
         # JSON -> Protobuf
+        logger.debug(f"[HELLO_POST] Parsing JSON to Protobuf: {json_data}")
         request_msg = demo_pb2.HelloRequest()
         ParseDict(json_data, request_msg)
         
         name = request_msg.name if request_msg.name else "World"
+        logger.info(f"[HELLO_POST] Greeting user: {name}")
         
         response_msg = demo_pb2.HelloResponse(
             message=f"Hello, {name}!",
@@ -84,9 +91,11 @@ def hello_post():
             request_id=request_id
         )
         
+        logger.info(f"[HELLO_POST] Response generated successfully")
         return jsonify(MessageToDict(response_msg)), 200
-        
+    
     except Exception as e:
+        logger.error(f"[HELLO_POST] Error processing request: {str(e)}", exc_info=True)
         return jsonify({"error": str(e), "request_id": request_id}), 500
 
 
@@ -111,6 +120,7 @@ def get_user(user_id):
     }
     """
     request_id = generate_request_id()
+    logger.info(f"[GET_USER] Processing request for user_id={user_id}, request_id={request_id}")
     
     try:
         # 模拟用户数据
@@ -124,6 +134,7 @@ def get_user(user_id):
         }
         
         if user_id not in mock_users:
+            logger.warning(f"[GET_USER] User {user_id} not found")
             return jsonify({
                 "success": False,
                 "message": f"User {user_id} not found",
@@ -131,18 +142,19 @@ def get_user(user_id):
             }), 404
         
         user_data = mock_users[user_id]
+        logger.debug(f"[GET_USER] User found: {user_data}")
         
         response_msg = demo_pb2.UserInfoResponse(
             success=True,
             request_id=request_id,
             message="User found"
         )
-        
         response_msg.user.user_id = user_data["user_id"]
         response_msg.user.username = user_data["username"]
         response_msg.user.email = user_data["email"]
         response_msg.user.age = user_data["age"]
         
+        logger.info(f"[GET_USER] User data returned successfully")
         return jsonify({
             "success": response_msg.success,
             "user": MessageToDict(response_msg.user),
@@ -151,6 +163,7 @@ def get_user(user_id):
         }), 200
         
     except Exception as e:
+        logger.error(f"[GET_USER] Error processing request: {str(e)}", exc_info=True)
         return jsonify({"error": str(e), "request_id": request_id}), 500
 
 
@@ -158,13 +171,11 @@ def get_user(user_id):
 def list_users():
     """
     POST 示例：获取用户列表 (展示 repeated 字段)
-    
     请求体 (JSON):
     {
         "page": 1,
         "page_size": 10
     }
-    
     响应:
     {
         "success": true,
@@ -179,15 +190,17 @@ def list_users():
     }
     """
     request_id = generate_request_id()
+    logger.info(f"[LIST_USERS] Processing request, request_id={request_id}")
     
     try:
         json_data = request.get_json() or {}
-        
         request_msg = demo_pb2.UserListRequest()
         ParseDict(json_data, request_msg)
         
         page = request_msg.page if request_msg.page else 1
         page_size = request_msg.page_size if request_msg.page_size else 10
+        
+        logger.debug(f"[LIST_USERS] Pagination: page={page}, page_size={page_size}")
         
         # 生成模拟用户
         total_users = 100
@@ -203,6 +216,8 @@ def list_users():
                 "age": 20 + (int(user_id) % 50)
             })
         
+        logger.info(f"[LIST_USERS] Generated {len(users)} users")
+        
         response_msg = demo_pb2.UserListResponse(
             success=True,
             total=total_users,
@@ -210,7 +225,6 @@ def list_users():
             page_size=page_size,
             request_id=request_id
         )
-        
         for user_data in users:
             user_msg = response_msg.users.add()
             user_msg.user_id = user_data["user_id"]
@@ -218,6 +232,7 @@ def list_users():
             user_msg.email = user_data["email"]
             user_msg.age = user_data["age"]
         
+        logger.info(f"[LIST_USERS] Response generated with {len(response_msg.users)} users")
         return jsonify({
             "success": response_msg.success,
             "users": [MessageToDict(u) for u in response_msg.users],
@@ -226,8 +241,9 @@ def list_users():
             "pageSize": response_msg.page_size,
             "request_id": response_msg.request_id
         }), 200
-        
+    
     except Exception as e:
+        logger.error(f"[LIST_USERS] Error processing request: {str(e)}", exc_info=True)
         return jsonify({"error": str(e), "request_id": request_id}), 500
 
 
@@ -235,12 +251,10 @@ def list_users():
 def echo():
     """
     POST 示例：Echo 接口 (展示通用响应格式)
-    
     请求体 (JSON): 任意数据
     {
         "key": "value"
     }
-    
     响应:
     {
         "statusCode": 0,
@@ -250,9 +264,11 @@ def echo():
     }
     """
     request_id = generate_request_id()
+    logger.info(f"[ECHO] Processing request, request_id={request_id}")
     
     try:
         json_data = request.get_json() or {}
+        logger.debug(f"[ECHO] Received data: {json_data}")
         
         response_msg = common_pb2.CommonResponse(
             status_code=common_pb2.STATUS_CODE_SUCCESS,
@@ -260,21 +276,14 @@ def echo():
             request_id=request_id
         )
         
+        logger.info(f"[ECHO] Echo response generated successfully")
         return jsonify({
             "statusCode": response_msg.status_code,
             "message": response_msg.message,
             "request_id": response_msg.request_id,
             "echo_data": json_data
         }), 200
-        
+    
     except Exception as e:
-        response_msg = common_pb2.CommonResponse(
-            status_code=common_pb2.STATUS_CODE_FAILURE,
-            message=str(e),
-            request_id=request_id
-        )
-        return jsonify({
-            "statusCode": response_msg.status_code,
-            "message": response_msg.message,
-            "request_id": response_msg.request_id
-        }), 500
+        logger.error(f"[ECHO] Error processing request: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e), "request_id": request_id}), 500
