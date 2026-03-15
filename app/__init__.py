@@ -33,6 +33,9 @@ def create_app(config_name=None):
     security = config.get('security', {})
     app.secret_key = security.get('secret_key', 'dev-secret-key')
     
+    # JSON 配置 - 支持中文显示
+    app.json.ensure_ascii = False
+    
     # Session settings
     session_config = config.get('session', {})
     from datetime import timedelta
