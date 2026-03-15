@@ -28,6 +28,11 @@ ENV/
 .vscode/
 .idea/
 *.swp
+
+# Generated protobuf code
+app/proto/*.py
+app/proto/*.pyi
+!app/proto/__init__.py
 *.swo
 *~
 
