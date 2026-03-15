@@ -4,14 +4,25 @@
 
 ```
 tests/
-├── conftest.py           # pytest 配置
-├── test_routes/          # 路由测试
-│   ├── test_main.py
-│   ├── test_api.py
-│   └── test_users.py
-└── test_config/          # 配置测试
-    └── test_loader.py
+├── conftest.py              # pytest 配置和共享 fixture
+├── test_config/             # 配置测试
+│   ├── __init__.py
+│   └── test_loader.py
+├── test_routes/             # 路由测试
+│   ├── __init__.py
+│   ├── test_main.py         # 主路由测试
+│   ├── test_api.py          # API 路由测试
+│   └── test_demo_protobuf.py # Protobuf 演示测试
+└── utils/                   # 测试工具
+    └── __init__.py
 ```
+
+## 测试覆盖
+
+- **48+ 单元测试** - 覆盖所有路由和功能
+- **路由测试** - 测试所有 API 端点
+- **配置测试** - 测试配置加载
+- **集成测试** - 测试跨模块功能
 
 ## 运行测试
 
@@ -30,6 +41,10 @@ pytest tests/ --cov=app --cov-report=html
 
 # 查看报告
 open htmlcov/index.html
+
+# 运行特定测试分类
+pytest tests/test_routes/ -v  # 只运行路由测试
+pytest tests/test_config/ -v  # 只运行配置测试
 ```
 
 ## 编写测试

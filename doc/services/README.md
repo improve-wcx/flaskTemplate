@@ -2,14 +2,45 @@
 
 ## 当前状态
 
-项目尚未实现业务逻辑层。
+本项目提供了服务层的基础架构示例，但尚未实现具体的业务逻辑层。
 
-## 规划中的服务
+### 已提供的示例
+
+- **BaseService** (`app/services/base.py`) - 基础服务类，提供 request_id 日志支持
+- 示例展示了如何在服务层使用结构化日志
+
+### 规划中的服务
 
 - UserService - 用户服务
-- ProductService - 产品服务
+- ProductService - 产品服务  
 - OrderService - 订单服务
 
 ## 开发指南
 
-待实现时参考路由开发文档中的服务层示例。
+### 如何创建服务类
+
+参考 `app/services/base.py` 中的 `BaseService` 示例：
+
+```python
+from app.services.base import BaseService
+from utils.logger import get_request_id
+
+class UserService(BaseService):
+    """用户服务类"""
+    
+    def __init__(self):
+        super().__init__('user_service')
+    
+    def get_user(self, user_id: str):
+        """获取用户信息"""
+        self.logger.info(f"Getting user {user_id}")
+        # 实现逻辑
+        return {"id": user_id, "name": "Test User"}
+```
+
+### 最佳实践
+
+1. **继承 BaseService** - 获得 request_id 日志支持
+2. **使用结构化日志** - 通过 `log_with_request_id()` 方法记录日志
+3. **异常处理** - 在服务层统一处理异常
+4. **依赖注入** - 通过构造函数注入依赖

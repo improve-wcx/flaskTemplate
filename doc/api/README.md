@@ -247,3 +247,67 @@ def create_user():
 6. **输入验证** - 验证所有输入
 7. **错误信息** - 提供清晰的错误提示
 8. **文档** - 使用 Swagger/OpenAPI 文档
+
+## 动态 API 列表
+
+本项目支持自动收集和分类所有 API 端点。
+
+### 查询所有可用 API
+
+```bash
+# 使用 curl
+curl http://127.0.0.1:5000/api/apis
+
+# 使用 CLI
+python cli.py apis
+```
+
+### 响应格式
+
+```json
+{
+  "total": 10,
+  "apis": {
+    "系统": [
+      {
+        "path": "/api/health",
+        "method": "GET",
+        "category": "系统",
+        "description": "",
+        "function": "health_check",
+        "module": "api"
+      },
+      {
+        "path": "/api/version",
+        "method": "GET",
+        "category": "系统",
+        "description": "",
+        "function": "version",
+        "module": "api"
+      }
+    ],
+    "Protobuf 演示": [
+      {
+        "path": "/api/v1/demo/hello",
+        "method": "GET",
+        "category": "Protobuf 演示",
+        "description": "",
+        "function": "hello_get",
+        "module": "demo_protobuf"
+      }
+    ]
+  },
+  "request_id": "uuid-xxx"
+}
+```
+
+### 自动分类机制
+
+所有 API 端点会根据其所属的 Blueprint 自动分类：
+
+- `main` Blueprint → **系统**
+- `api` Blueprint → **系统**
+- `demo_protobuf` Blueprint → **Protobuf 演示**
+- `admin` Blueprint → **管理**
+
+添加新 Blueprint 时，在 `app/__init__.py` 中指定分类即可。

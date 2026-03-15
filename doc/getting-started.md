@@ -75,7 +75,7 @@ def list_users():
 
 ### 2. 注册路由
 
-在 `app/__init__.py` 中注册新路由：
+在 `app/__init__.py` 中注册新蓝图，并指定分类（如 `系统`, `用户管理` 等）：
 
 ```python
 def create_app(config_name=None):
@@ -85,8 +85,12 @@ def create_app(config_name=None):
     from app.routes.users import users_bp
     app.register_blueprint(users_bp)
     
+    # 路由会自动被收集到 /apis 端点
+    # 分类在蓝图注册时自动确定
     return app
 ```
+
+**注意**: 所有注册的路由会自动被 `/apis` 端点收集和分类，无需手动维护 API 列表。
 
 ### 3. 添加 CLI 支持
 
