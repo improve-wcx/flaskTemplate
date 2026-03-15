@@ -33,10 +33,36 @@ pytest tests/ -v
 
 - **JSON 配置** - 统一管理所有环境配置
 - **模块化路由** - 按功能拆分路由模块
-- **结构化日志** - JSON 格式日志输出
-- **完整测试** - 10+ 单元测试覆盖
+- **结构化日志** - JSON 格式日志输出，支持 request_id 追踪
+- **完整测试** - 25+ 单元测试覆盖
 - **应用工厂** - 灵活的应用创建模式
 - **Protocol Buffers** - 支持 protobuf 数据序列化
+- **命令行客户端** - 所有 API 接口均可通过 CLI 调用
+
+## 命令行客户端
+
+所有 Web API 接口都可通过命令行客户端访问：
+
+```bash
+# 查看所有命令
+python cli.py --help
+
+# 健康检查
+python cli.py health
+
+# 问候接口
+python cli.py hello --get
+python cli.py hello --post --name "Alice"
+
+# 用户接口
+python cli.py user 12345
+python cli.py users --page 1 --page-size 10
+
+# Echo 测试
+python cli.py echo --data '{"key": "value"}'
+```
+
+详细使用说明请参考：[命令行客户端指南](doc/cli/README.md)
 
 ## 示例接口
 
