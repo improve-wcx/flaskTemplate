@@ -166,9 +166,9 @@ projectTemplate/
 │   │   └── demo_protobuf.py    # Protobuf 演示接口
 │   ├── services/
 │   └── models/
-├── proto/                       # Proto 文件
-│   ├── helloworld.proto
-│   └── common.proto
+├── proto/              # Proto 文件
+│   ├── demo.proto      # 演示用 Protobuf 定义
+│   └── common.proto    # 通用 Protobuf 定义
 ├── tests/                       # 测试
 ├── doc/                         # 文档
 └── logs/                        # 日志文件

@@ -253,7 +253,7 @@ def get_user(user_id):
 ### 检查清单
 
 - [ ] .proto 文件已创建
-- [ ] 包名已定义（避免使用 helloworld 等通用名称）
+- [ ] 包名已定义（使用有意义的名称，如 `demo`, `user`, `order` 等）
 - [ ] 已编译生成 .pb2.py 和 .pb2.pyi 文件
 - [ ] 路由中正确使用 ParseDict/MessageToDict
 - [ ] 文档已更新
