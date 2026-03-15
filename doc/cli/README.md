@@ -26,15 +26,16 @@ python cli.py --help
 
 输出示例：
 ```
-usage: cli.py [-h] [--base-url BASE_URL] {health,version,hello,user,users,echo,admin,home} ...
+usage: cli.py [-h] [--base-url BASE_URL] {health,version,apis,hello,user,users,echo,admin,home} ...
 
 Web API 命令行客户端 - 调用所有 Web API 接口
 
 positional arguments:
-  {health,version,hello,user,users,echo,admin,home}
+  {health,version,apis,hello,user,users,echo,admin,home}
                         可用命令
     health              健康检查
     version             版本信息
+    apis                查询所有可用接口
     hello               问候接口
     user                获取用户信息
     users               获取用户列表
@@ -131,7 +132,82 @@ URL: http://127.0.0.1:5000/api/version
 
 ---
 
-### 3. hello - 问候接口
+### 3. apis - 查询所有可用接口
+
+查询当前服务支持的所有 Web 接口，按分类展示。
+
+```bash
+# 基本用法
+python cli.py apis
+```
+
+**输出示例：**
+```
+URL: http://127.0.0.1:5000/api/apis
+方法：GET
+--------------------------------------------------
+{
+  "total": 8,
+  "apis": {
+    "系统": [
+      {
+        "path": "/api/health",
+        "method": "GET",
+        "description": "健康检查"
+      },
+      {
+        "path": "/api/version",
+        "method": "GET",
+        "description": "版本信息"
+      },
+      {
+        "path": "/apis",
+        "method": "GET",
+        "description": "查询所有可用接口"
+      }
+    ],
+    "Protobuf 演示": [
+      {
+        "path": "/api/v1/demo/hello",
+        "method": "GET",
+        "description": "简单问候"
+      },
+      {
+        "path": "/api/v1/demo/hello",
+        "method": "POST",
+        "description": "带参数的问候"
+      },
+      {
+        "path": "/api/v1/demo/user/<user_id>",
+        "method": "GET",
+        "description": "获取用户信息"
+      },
+      {
+        "path": "/api/v1/demo/users",
+        "method": "POST",
+        "description": "获取用户列表"
+      },
+      {
+        "path": "/api/v1/demo/echo",
+        "method": "POST",
+        "description": "Echo 接口"
+      }
+    ]
+  },
+  "request_id": "1548b98b-0ac0-4ce4-960f-12ba556ec0a4"
+}
+```
+
+**参数：** 无
+
+**使用场景：**
+- 快速了解服务支持的所有接口
+- 查看接口的路径、方法和描述
+- 按分类浏览接口
+
+---
+
+### 4. hello - 问候接口
 
 演示 GET 和 POST 两种请求方式。
 
@@ -184,7 +260,7 @@ URL: http://127.0.0.1:5000/api/v1/demo/hello
 
 ---
 
-### 4. user - 获取用户信息
+### 5. user - 获取用户信息
 
 根据用户 ID 获取详细信息。
 
@@ -231,7 +307,7 @@ URL: http://127.0.0.1:5000/api/v1/demo/user/99999
 
 ---
 
-### 5. users - 获取用户列表
+### 6. users - 获取用户列表
 
 获取分页用户列表。
 
@@ -274,7 +350,7 @@ URL: http://127.0.0.1:5000/api/v1/demo/users
 
 ---
 
-### 6. echo - Echo 接口
+### 7. echo - Echo 接口
 
 发送任意 JSON 数据并返回，用于测试。
 
@@ -310,7 +386,7 @@ URL: http://127.0.0.1:5000/api/v1/demo/echo
 
 ---
 
-### 7. admin - 管理后台
+### 8. admin - 管理后台
 
 访问管理后台（当前仅显示信息）。
 
@@ -330,7 +406,7 @@ URL: http://127.0.0.1:5000/admin/
 
 ---
 
-### 8. home - 首页
+### 9. home - 首页
 
 访问网站首页。
 

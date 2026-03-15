@@ -86,6 +86,9 @@ python cli.py hello --post --name "Alice"
 python cli.py user 12345
 python cli.py users --page 1 --page-size 10
 
+# 查询所有可用接口
+python cli.py apis
+
 # Echo 测试
 python cli.py echo --data '{"key": "value"}'
 ```

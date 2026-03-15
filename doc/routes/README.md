@@ -13,6 +13,7 @@
 ### API 路由 (api.py)
 - `GET /api/health` - 健康检查
 - `GET /api/version` - 版本信息
+- `GET /api/apis` - 查询所有可用接口
 
 ### 管理路由 (admin.py)
 - `GET /admin/` - 管理后台 (待实现)
@@ -31,6 +32,9 @@
 ```bash
 # 查看所有命令
 python cli.py --help
+
+# 查询所有可用接口
+python cli.py apis
 
 # 健康检查
 python cli.py health

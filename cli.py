@@ -223,6 +223,16 @@ def cmd_home(args):
         return 1
 
 
+def cmd_apis(args):
+    """查询所有可用接口"""
+    url = f"{args.base_url}/api/apis"
+    print(f"URL: {url}")
+    print(f"方法：GET")
+    print("-" * 50)
+    status_code, data = make_request(url)
+    return print_response(status_code, data)
+
+
 # ========== 主函数 ==========
 
 def main():
@@ -286,6 +296,10 @@ def main():
     # home 命令
     home_parser = subparsers.add_parser('home', help='首页')
     home_parser.set_defaults(func=cmd_home)
+    
+    # apis 命令
+    apis_parser = subparsers.add_parser('apis', help='查询所有可用接口')
+    apis_parser.set_defaults(func=cmd_apis)
     
     args = parser.parse_args()
     
