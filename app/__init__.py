@@ -1,26 +1,17 @@
-"""
-Flask application factory.
-
-Usage:
-    from app import app
-    app.run()
-    
-Or with run.py:
-    python run.py
+""" Flask application factory.
+Usage: from app import app
+app.run()
+Or with run.py: python run.py
 """
 import os
 from flask import Flask
 from utils.logger import setup_logger
 from config import get_config
 
-
 def create_app(config_name=None):
-    """
-    Application factory function.
-    
+    """ Application factory function.
     Args:
         config_name: Configuration name ('development', 'testing', 'production')
-        
     Returns:
         Configured Flask application instance
     """
@@ -60,20 +51,19 @@ def create_app(config_name=None):
     logging_config = config.get('logging', {})
     import utils.logger as logger_module
     logger_module.LOG_DIR = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), 
+        os.path.dirname(os.path.dirname(__file__)),
         logging_config.get('log_dir', 'logs')
     )
     logger_module.LOG_FILE = os.path.join(
-        logger_module.LOG_DIR, 
+        logger_module.LOG_DIR,
         logging_config.get('app_log_file', 'app.log')
     )
     logger_module.LOG_TRACE_FILE = os.path.join(
-        logger_module.LOG_DIR, 
+        logger_module.LOG_DIR,
         logging_config.get('trace_log_file', 'trace.log')
     )
-    
     logger = setup_logger("projectTemplate", level=getattr(
-        __import__('logging'), 
+        __import__('logging'),
         logging_config.get('level', 'DEBUG').upper()
     ))
     app.logger = logger
@@ -82,28 +72,47 @@ def create_app(config_name=None):
     from app.routes.main import main_bp
     from app.routes.api import api_bp
     # from app.routes.admin import admin_bp  # Uncomment when needed
-    
     app.register_blueprint(main_bp)
     app.register_blueprint(api_bp)
     # app.register_blueprint(admin_bp)  # Uncomment when needed
     
     # Before request hook
     @app.before_request
-    def log_request():
-        from flask import request
-        logger.info("%s %s", request.method, request.path)
+    def before_request():
+        """Set up request_id for tracing and log the request."""
+        from flask import request, g
+        from utils.logger import set_request_id
+        
+        # Generate and set request_id for this request
+        request_id = set_request_id()
+        
+        # Store in Flask's g object for access in routes
+        g.request_id = request_id
+        
+        # Log the incoming request with request_id
+        logger.info("%s %s", request.method, request.path, extra={'request_id': request_id})
     
-    # Error handlers
-    @app.errorhandler(404)
-    def not_found(error):
-        return "Not Found", 404
+    # After request hook
+    @app.after_request
+    def after_request(response):
+        """Log the response with request_id."""
+        from flask import request, g
+        from utils.logger import get_request_id
+        
+        # Get request_id from g or context
+        request_id = getattr(g, 'request_id', None) or get_request_id()
+        
+        # Log response with request_id
+        logger.info(
+            "%s %s %d %s",
+            request.method,
+            request.path,
+            response.status_code,
+            request.remote_addr,
+            extra={'request_id': request_id}
+        )
+        
+        return response
     
-    @app.errorhandler(500)
-    def internal_error(error):
-        return "Internal Server Error", 500
-    
+    # Return the app instance
     return app
-
-
-# For backward compatibility
-app = create_app()

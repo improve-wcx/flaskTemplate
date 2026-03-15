@@ -8,6 +8,11 @@ import json
 import time
 import threading
 import traceback
+import uuid
+from contextvars import ContextVar
+
+# Context variable for request_id (thread-safe, async-safe)
+_request_id_ctx = ContextVar('request_id', default=None)
 
 # Get the project root directory (parent of utils directory)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,18 +26,18 @@ LOG_TRACE_FILE = os.path.join(LOG_DIR, "trace.log")
 def configure_logger_paths(log_dir: str, app_log_file: str = "app.log", trace_log_file: str = "trace.log"):
     """
     Configure logger file paths.
-    
+
     Args:
         log_dir: Directory for log files
         app_log_file: Name of the main log file
         trace_log_file: Name of the trace log file
     """
     global LOG_DIR, LOG_FILE, LOG_TRACE_FILE
-    
+
     # Make log_dir absolute if relative
     if not os.path.isabs(log_dir):
         log_dir = os.path.join(PROJECT_ROOT, log_dir)
-    
+
     LOG_DIR = log_dir
     os.makedirs(LOG_DIR, exist_ok=True)
     LOG_FILE = os.path.join(LOG_DIR, app_log_file)
@@ -45,7 +50,7 @@ class JSONListFormatter(logging.Formatter):
     Output format (list):
     [timestamp, level, pid, tid, logger_name, message, extra]
 
-    `extra` is a dict that may include `pathname`, `lineno`, and `traceback` (when present).
+    `extra` is a dict that may include `pathname`, `lineno`, `traceback`, and `request_id` (when present).
     """
 
     def formatTime(self, record, datefmt=None):
@@ -61,17 +66,24 @@ class JSONListFormatter(logging.Formatter):
         name = record.name
         message = record.getMessage()
 
+        # Get request_id from extra or context variable
+        request_id = getattr(record, 'request_id', None) or _request_id_ctx.get()
+
         extra = {
             "pathname": getattr(record, "pathname", None),
             "lineno": getattr(record, "lineno", None),
         }
+
+        # Add request_id to extra if present
+        if request_id:
+            extra["request_id"] = request_id
 
         # If there is exception info, include formatted traceback
         if record.exc_info:
             tb = ''.join(traceback.format_exception(*record.exc_info))
             extra["traceback"] = tb
 
-        # Build JSON list
+        # Build JSON list payload
         payload = [timestamp, level, pid, tid, name, message, extra]
         try:
             return json.dumps(payload, ensure_ascii=False)
@@ -123,3 +135,50 @@ def setup_logger(name: str = None, level: int = logging.DEBUG) -> logging.Logger
     logger.addHandler(trace_handler)
 
     return logger
+
+
+def get_request_id():
+    """Get the current request_id from context.
+
+    Returns:
+        str: The current request_id or None if not set
+    """
+    return _request_id_ctx.get()
+
+
+def set_request_id(request_id: str = None):
+    """Set the request_id in the current context.
+
+    Args:
+        request_id: The request_id to set. If None, generates a new UUID.
+
+    Returns:
+        str: The request_id that was set
+    """
+    if request_id is None:
+        request_id = str(uuid.uuid4())
+    token = _request_id_ctx.set(request_id)
+    return request_id
+
+
+def reset_request_id(token=None):
+    """Reset the request_id to its previous value.
+
+    Args:
+        token: The token returned by set_request_id
+    """
+    if token is not None:
+        _request_id_ctx.reset(token)
+    else:
+        _request_id_ctx.set(None)
+
+
+class RequestIdFilter(logging.Filter):
+    """Filter that adds request_id to log records if not already present."""
+
+    def filter(self, record):
+        # Get request_id from record or context
+        request_id = getattr(record, 'request_id', None) or _request_id_ctx.get()
+        if request_id:
+            record.request_id = request_id
+        return True
