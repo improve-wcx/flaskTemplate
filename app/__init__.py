@@ -71,11 +71,11 @@ def create_app(config_name=None):
     # Register blueprints
     from app.routes.main import main_bp
     from app.routes.api import api_bp
-    from app.routes.helloworld import helloworld_bp
+    from app.routes.demo_protobuf import demo_protobuf_bp
     # from app.routes.admin import admin_bp  # Uncomment when needed
     app.register_blueprint(main_bp)
     app.register_blueprint(api_bp)
-    app.register_blueprint(helloworld_bp)
+    app.register_blueprint(demo_protobuf_bp)
     # app.register_blueprint(admin_bp)  # Uncomment when needed
     
     # Before request hook

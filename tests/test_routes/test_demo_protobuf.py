@@ -6,7 +6,7 @@
 import pytest
 import json
 from app import create_app
-from app.proto import helloworld_pb2
+from app.proto import helloworld_pb2  # Updated for demo_protobuf
 from app.proto import common_pb2
 
 
@@ -24,13 +24,25 @@ def client(app):
     return app.test_client()
 
 
-class TestHelloWorld:
+class TestDemoProtobuf:
     """Hello World 接口测试类"""
     
-    def test_hello_json_success(self, client):
+    
+    def test_demo_hello_get(self, client):
+        """测试 GET 方法 - 简单问候"""
+        response = client.get('/api/v1/demo/hello')
+        
+        assert response.status_code == 200
+        data = response.get_json()
+        assert 'message' in data
+        assert data['message'] == "Hello, World!"
+        assert 'timestamp' in data
+        assert 'request_id' in data
+
+    def test_demo_hello_json_success(self, client):
         """测试 JSON 格式的问候接口 - 成功场景"""
         response = client.post(
-            '/api/v1/hello',
+            '/api/v1/demo/hello',
             data=json.dumps({'name': 'Alice'}),
             content_type='application/json'
         )
@@ -43,10 +55,10 @@ class TestHelloWorld:
         assert 'timestamp' in data
         assert 'request_id' in data
     
-    def test_hello_json_default_name(self, client):
+    def test_demo_hello_json_default_name(self, client):
         """测试 JSON 格式的问候接口 - 默认名称"""
         response = client.post(
-            '/api/v1/hello',
+            '/api/v1/demo/hello',
             data=json.dumps({}),
             content_type='application/json'
         )
@@ -56,10 +68,10 @@ class TestHelloWorld:
         
         assert data['message'] == 'Hello, World!'
     
-    def test_hello_json_empty_body(self, client):
+    def test_demo_hello_json_empty_body(self, client):
         """测试 JSON 格式的问候接口 - 空请求体"""
         response = client.post(
-            '/api/v1/hello',
+            '/api/v1/demo/hello',
             data=json.dumps({}),
             content_type='application/json'
         )
@@ -70,10 +82,10 @@ class TestHelloWorld:
         assert 'message' in data
         assert 'request_id' in data
     
-    def test_hello_json_invalid_data(self, client):
+    def test_demo_hello_json_invalid_data(self, client):
         """测试 JSON 格式的问候接口 - 无效数据"""
         response = client.post(
-            '/api/v1/hello',
+            '/api/v1/demo/hello',
             data='invalid json',
             content_type='application/json'
         )
@@ -82,14 +94,14 @@ class TestHelloWorld:
         # assert response.status_code == 400
         assert response.status_code == 500
     
-    def test_hello_binary_success(self, client):
+    def test_demo_hello_binary_success(self, client):
         """测试二进制格式的问候接口"""
         # 创建 protobuf 请求
         request_msg = helloworld_pb2.HelloRequest(name='Bob')
         request_data = request_msg.SerializeToString()
         
         response = client.post(
-            '/api/v1/hello-binary',
+            '/api/v1/demo/hello-binary',
             data=request_data,
             content_type='application/x-protobuf'
         )
@@ -104,10 +116,10 @@ class TestHelloWorld:
         assert response_msg.request_id != ''
         assert response.content_type == 'application/x-protobuf'
     
-    def test_hello_binary_empty_data(self, client):
+    def test_demo_hello_binary_empty_data(self, client):
         """测试二进制格式的问候接口 - 空数据"""
         response = client.post(
-            '/api/v1/hello-binary',
+            '/api/v1/demo/hello-binary',
             data=b'',
             content_type='application/x-protobuf'
         )
@@ -127,7 +139,7 @@ class TestUserInfo:
     def test_get_user_success(self, client):
         """测试获取用户信息 - 成功"""
         response = client.post(
-            '/api/v1/user',
+            '/api/v1/demo/user',
             data=json.dumps({'user_id': '12345'}),
             content_type='application/json'
         )
@@ -147,7 +159,7 @@ class TestUserInfo:
     def test_get_user_not_found(self, client):
         """测试获取用户信息 - 用户不存在"""
         response = client.post(
-            '/api/v1/user',
+            '/api/v1/demo/user',
             data=json.dumps({'user_id': '99999'}),
             content_type='application/json'
         )
@@ -161,7 +173,7 @@ class TestUserInfo:
     def test_get_user_invalid_request(self, client):
         """测试获取用户信息 - 无效请求"""
         response = client.post(
-            '/api/v1/user',
+            '/api/v1/demo/user',
             data=json.dumps({}),
             content_type='application/json'
         )
@@ -173,10 +185,23 @@ class TestUserInfo:
 class TestUserList:
     """用户列表接口测试"""
     
+    
+    def test_list_users_get(self, client):
+        """测试获取用户列表 (GET)"""
+        response = client.get('/api/v1/demo/users?page=1&page_size=5')
+        
+        assert response.status_code == 200
+        data = response.get_json()
+        assert 'success' in data
+        assert 'users' in data
+        assert 'total' in data
+        assert data['page'] == 1
+        assert data['pageSize'] == 5
+
     def test_list_users_default_page(self, client):
         """测试用户列表 - 默认分页"""
         response = client.post(
-            '/api/v1/users',
+            '/api/v1/demo/users',
             data=json.dumps({}),
             content_type='application/json'
         )
@@ -195,7 +220,7 @@ class TestUserList:
     def test_list_users_custom_pagination(self, client):
         """测试用户列表 - 自定义分页"""
         response = client.post(
-            '/api/v1/users',
+            '/api/v1/demo/users',
             data=json.dumps({
                 'page': 2,
                 'page_size': 20
@@ -214,7 +239,7 @@ class TestUserList:
     def test_list_users_user_fields(self, client):
         """测试用户列表 - 用户字段完整性"""
         response = client.post(
-            '/api/v1/users',
+            '/api/v1/demo/users',
             data=json.dumps({'page': 1, 'page_size': 1}),
             content_type='application/json'
         )
@@ -357,7 +382,7 @@ class TestIntegration:
         responses = []
         for i in range(3):
             response = client.post(
-                '/api/v1/hello',
+                '/api/v1/demo/hello',
                 data=json.dumps({'name': f'User{i}'}),
                 content_type='application/json'
             )
@@ -370,7 +395,7 @@ class TestIntegration:
     def test_timestamp_format(self, client):
         """测试时间戳格式"""
         response = client.post(
-            '/api/v1/hello',
+            '/api/v1/demo/hello',
             data=json.dumps({'name': 'Test'}),
             content_type='application/json'
         )
@@ -384,7 +409,7 @@ class TestIntegration:
         """测试错误处理"""
         # 发送无效请求
         response = client.post(
-            '/api/v1/hello',
+            '/api/v1/demo/hello',
             data='not json',
             content_type='application/json'
         )

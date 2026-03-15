@@ -50,3 +50,8 @@ message UserListResponse {
   int32 page_size = 5;        // 每页数量
   string request_id = 6;      // 请求 ID
 }
+
+// 获取单个用户请求 (RESTful GET)
+message GetUserRequest {
+  string user_id = 1;  // 用户 ID
+}

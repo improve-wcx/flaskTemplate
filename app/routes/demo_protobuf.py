@@ -12,7 +12,7 @@ import time
 from datetime import datetime
 
 # 创建蓝图
-helloworld_bp = Blueprint('helloworld', __name__, url_prefix='/api/v1')
+demo_protobuf_bp = Blueprint('demo_protobuf', __name__, url_prefix='/api/v1/demo')
 
 
 def generate_request_id():
@@ -20,12 +20,18 @@ def generate_request_id():
     return str(uuid.uuid4())
 
 
-@helloworld_bp.route('/hello', methods=['POST'])
+@demo_protobuf_bp.route('/hello', methods=['GET', 'POST'])
 def hello():
     """
     Hello World 接口示例
     
-    请求体 (JSON):
+    GET 方法: 简单问候，无需参数
+    POST 方法: 带参数的问候
+    
+    GET 请求:
+    /api/v1/demo/hello
+    
+    POST 请求体 (JSON):
     {
         "name": "John"
     }
@@ -40,7 +46,20 @@ def hello():
     request_id = generate_request_id()
     
     try:
-        # 1. 获取原始 JSON 数据
+        # GET 方法：简单问候
+        if request.method == 'GET':
+            response_msg = helloworld_pb2.HelloResponse(
+                message="Hello, World!",
+                timestamp=datetime.now().isoformat(),
+                request_id=request_id
+            )
+            return jsonify({
+                "message": response_msg.message,
+                "timestamp": response_msg.timestamp,
+                "request_id": response_msg.request_id
+            }), 200
+        
+        # POST 方法：带参数的问候
         json_data = request.get_json()
         if json_data is None:
             return jsonify({
@@ -77,7 +96,7 @@ def hello():
         }), 500
 
 
-@helloworld_bp.route('/hello-binary', methods=['POST'])
+@demo_protobuf_bp.route('/hello-binary', methods=['POST'])
 def hello_binary():
     """
     二进制数据接口示例 (展示 protobuf 的序列化能力)
@@ -117,21 +136,19 @@ def hello_binary():
         return str(e), 400
 
 
-@helloworld_bp.route('/user', methods=['POST'])
-def get_user_info():
+@demo_protobuf_bp.route('/user/<user_id>', methods=['GET'])
+def get_user(user_id):
     """
-    获取用户信息接口示例
+    获取单个用户信息 (RESTful GET)
     
-    请求体 (JSON):
-    {
-        "user_id": "12345"
-    }
+    GET 请求:
+    /api/v1/demo/user/12345
     
     响应体 (JSON):
     {
         "success": true,
         "user": {
-            "user_id": "12345",
+            "userId": "12345",
             "username": "john_doe",
             "email": "john@example.com",
             "age": 25
@@ -140,18 +157,13 @@ def get_user_info():
         "request_id": "uuid-here"
     }
     """
+    request_id = generate_request_id()
+    
     try:
-        # 1. 获取 JSON 数据
-        json_data = request.get_json()
-        if not json_data:
-            return jsonify({"error": "Invalid JSON"}), 400
+        # 1. 创建请求消息
+        request_msg = helloworld_pb2.GetUserRequest(user_id=user_id)
         
-        # 2. 解析请求
-        request_msg = helloworld_pb2.UserInfoRequest()
-        ParseDict(json_data, request_msg)
-        
-        # 3. 模拟查询数据库
-        user_id = request_msg.user_id
+        # 2. 模拟查询数据库
         
         # 模拟用户数据
         mock_users = {
@@ -173,14 +185,14 @@ def get_user_info():
             return jsonify({
                 "success": False,
                 "message": f"User {user_id} not found",
-                "request_id": generate_request_id()
+                "request_id": request_id
             }), 404
         
-        # 4. 创建响应
+        # 3. 创建响应
         user_data = mock_users[user_id]
         response_msg = helloworld_pb2.UserInfoResponse(
             success=True,
-            request_id=generate_request_id(),
+            request_id=request_id,
             message="User found"
         )
         # 设置用户信息
@@ -204,12 +216,18 @@ def get_user_info():
         }), 500
 
 
-@helloworld_bp.route('/users', methods=['POST'])
+@demo_protobuf_bp.route('/users', methods=['GET', 'POST'])
 def list_users():
     """
     用户列表接口示例 (展示 repeated 字段)
     
-    请求体 (JSON):
+    GET 方法：通过查询参数分页
+    POST 方法：通过请求体分页
+    
+    GET 请求:
+    /api/v1/demo/users?page=1&page_size=10
+    
+    POST 请求体 (JSON):
     {
         "page": 1,
         "page_size": 10
@@ -219,21 +237,28 @@ def list_users():
     {
         "success": true,
         "users": [
-            {"user_id": "1", "username": "user1", ...},
-            {"user_id": "2", "username": "user2", ...}
+            {"userId": "1", "username": "user1", ...},
+            {"userId": "2", "username": "user2", ...}
         ],
         "total": 100,
         "page": 1,
-        "page_size": 10,
+        "pageSize": 10,
         "request_id": "uuid-here"
     }
     """
+    request_id = generate_request_id()
+    
     try:
-        # 1. 获取 JSON 数据
-        json_data = request.get_json()
-        if json_data is None:
-            # 空对象或无效 JSON 都使用默认值
-            json_data = {}
+        # GET 方法：从查询参数获取
+        if request.method == 'GET':
+            page = request.args.get('page', 1, type=int)
+            page_size = request.args.get('page_size', 10, type=int)
+            json_data = {"page": page, "page_size": page_size}
+        else:
+            # POST 方法：从请求体获取
+            json_data = request.get_json()
+            if json_data is None:
+                json_data = {}
         
         # 2. 解析请求
         request_msg = helloworld_pb2.UserListRequest()
@@ -264,7 +289,7 @@ def list_users():
             total=total_users,
             page=page,
             page_size=page_size,
-            request_id=generate_request_id()
+            request_id=request_id
         )
         
         # 添加用户到 repeated 字段
@@ -294,7 +319,7 @@ def list_users():
         }), 500
 
 
-@helloworld_bp.route('/echo', methods=['POST'])
+@demo_protobuf_bp.route('/echo', methods=['POST'])
 def echo():
     """
     Echo 接口示例 (展示通用响应格式)
