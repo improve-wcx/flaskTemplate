@@ -1,33 +1,98 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+import json
+import time
+import threading
+import traceback
 
 LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 LOG_FILE = os.path.join(LOG_DIR, "app.log")
+LOG_TRACE_FILE = os.path.join(LOG_DIR, "trace.log")
 
 
-def setup_logger(name: str = None, level: int = logging.INFO) -> logging.Logger:
-    """Create and return a logger configured with a rotating file handler and console handler.
+class JSONListFormatter(logging.Formatter):
+    """Format log records as a JSON array (list).
 
-    Re-using an existing logger's handlers if already configured avoids duplicate handlers
-    when this module is imported multiple times.
+    Output format (list):
+      [timestamp, level, pid, tid, logger_name, message, extra]
+
+    `extra` is a dict that may include `pathname`, `lineno`, and `traceback` (when present).
+    """
+
+    def formatTime(self, record, datefmt=None):
+        t = time.localtime(record.created)
+        ms = int(record.msecs)
+        return time.strftime("%Y-%m-%dT%H:%M:%S", t) + f".{ms:03d}"
+
+    def format(self, record):
+        timestamp = self.formatTime(record)
+        level = record.levelname
+        pid = getattr(record, "process", None) or os.getpid()
+        tid = getattr(record, "thread", None) or threading.get_ident()
+        name = record.name
+        message = record.getMessage()
+
+        extra = {
+            "pathname": getattr(record, "pathname", None),
+            "lineno": getattr(record, "lineno", None),
+        }
+
+        # If there is exception info, include formatted traceback
+        if record.exc_info:
+            tb = ''.join(traceback.format_exception(*record.exc_info))
+            extra["traceback"] = tb
+
+        # Build JSON list
+        payload = [timestamp, level, pid, tid, name, message, extra]
+        try:
+            return json.dumps(payload, ensure_ascii=False)
+        except Exception:
+            # Fallback to a simple text representation if JSON serialization fails
+            return str(payload)
+
+
+class ExceptionOnlyFilter(logging.Filter):
+    """Allow only records that contain exception info."""
+
+    def filter(self, record):
+        return bool(record.exc_info)
+
+
+def setup_logger(name: str = None, level: int = logging.DEBUG) -> logging.Logger:
+    """Create and return a logger configured with JSON-list format and a trace handler.
+
+    - Main handlers (file + console) write structured JSON-list log entries to `app.log`.
+    - A separate rotating `trace.log` receives records that contain exception info and includes the traceback.
     """
     logger_name = name if name else __name__
     logger = logging.getLogger(logger_name)
+
+    # Reset handlers to ensure new configuration applies if reloaded
     if logger.handlers:
-        return logger
+        logger.handlers.clear()
 
     logger.setLevel(level)
 
-    fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+    # Ensure files exist so tests or other code can open them immediately.
+    open(LOG_FILE, "a", encoding="utf-8").close()
+    open(LOG_TRACE_FILE, "a", encoding="utf-8").close()
 
-    file_handler = RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=3)
-    file_handler.setFormatter(fmt)
+    formatter = JSONListFormatter()
+
+    file_handler = RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=5, encoding="utf-8")
+    file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
     console_handler = logging.StreamHandler()
-    console_handler.setFormatter(fmt)
+    console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
+
+    # Trace handler: only records with exception info are written here, include full traceback
+    trace_handler = RotatingFileHandler(LOG_TRACE_FILE, maxBytes=1024 * 1024, backupCount=3, encoding="utf-8")
+    trace_handler.setFormatter(formatter)
+    trace_handler.addFilter(ExceptionOnlyFilter())
+    logger.addHandler(trace_handler)
 
     return logger
