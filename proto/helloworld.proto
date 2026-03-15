@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package helloworld;
+
+// 请求消息：接收用户输入
+message HelloRequest {
+  string name = 1;  // 用户姓名
+}
+
+// 响应消息：返回问候信息
+message HelloResponse {
+  string message = 1;   // 问候语
+  string timestamp = 2; // 响应时间
+  string request_id = 3; // 请求 ID（用于追踪）
+}
+
+// 用户信息消息
+message UserInfo {
+  string user_id = 1;
+  string username = 2;
+  string email = 3;
+  int32 age = 4;
+}
+
+// 用户信息请求
+message UserInfoRequest {
+  string user_id = 1;  // 用户 ID
+}
+
+// 用户信息响应
+message UserInfoResponse {
+  bool success = 1;          // 是否成功
+  UserInfo user = 2;         // 用户信息
+  string message = 3;        // 消息
+  string request_id = 4;     // 请求 ID
+}
+
+// 多用户列表请求
+message UserListRequest {
+  int32 page = 1;        // 页码
+  int32 page_size = 2;   // 每页数量
+}
+
+// 多用户列表响应
+message UserListResponse {
+  bool success = 1;           // 是否成功
+  repeated UserInfo users = 2; // 用户列表
+  int32 total = 3;            // 总数
+  int32 page = 4;             // 当前页
+  int32 page_size = 5;        // 每页数量
+  string request_id = 6;      // 请求 ID
+}
