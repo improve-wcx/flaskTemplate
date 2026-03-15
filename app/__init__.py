@@ -11,6 +11,7 @@ Or with run.py:
 import os
 from flask import Flask
 from utils.logger import setup_logger
+from config import get_config
 
 
 def create_app(config_name=None):
@@ -26,18 +27,55 @@ def create_app(config_name=None):
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
     
-    # Import configurations
-    from config.base import config_map
-    config_class = config_map.get(config_name, config_map['default'])
+    # Load configuration from JSON
+    config = get_config(config_name)
     
     # Create Flask app
     app = Flask(__name__)
     
-    # Load configuration
-    app.config.from_object(config_class)
+    # Apply configuration
+    app_config = config.get('app', {})
+    app.debug = app_config.get('debug', False)
+    app.testing = app_config.get('testing', False)
     
-    # Initialize logger
-    logger = setup_logger("projectTemplate")
+    # Security settings
+    security = config.get('security', {})
+    app.secret_key = security.get('secret_key', 'dev-secret-key')
+    
+    # Session settings
+    session_config = config.get('session', {})
+    from datetime import timedelta
+    app.permanent_session_lifetime = timedelta(
+        hours=session_config.get('permanent_session_lifetime_hours', 1)
+    )
+    
+    # Cookie settings
+    app.config.update(
+        SESSION_COOKIE_SECURE=security.get('session_cookie_secure', False),
+        SESSION_COOKIE_HTTPONLY=security.get('session_cookie_httponly', True),
+        SESSION_COOKIE_SAMESITE=security.get('session_cookie_samesite', 'Lax')
+    )
+    
+    # Initialize logger with config
+    logging_config = config.get('logging', {})
+    import utils.logger as logger_module
+    logger_module.LOG_DIR = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), 
+        logging_config.get('log_dir', 'logs')
+    )
+    logger_module.LOG_FILE = os.path.join(
+        logger_module.LOG_DIR, 
+        logging_config.get('app_log_file', 'app.log')
+    )
+    logger_module.LOG_TRACE_FILE = os.path.join(
+        logger_module.LOG_DIR, 
+        logging_config.get('trace_log_file', 'trace.log')
+    )
+    
+    logger = setup_logger("projectTemplate", level=getattr(
+        __import__('logging'), 
+        logging_config.get('level', 'DEBUG').upper()
+    ))
     app.logger = logger
     
     # Register blueprints
@@ -55,7 +93,7 @@ def create_app(config_name=None):
         from flask import request
         logger.info("%s %s", request.method, request.path)
     
-    # Error handlers (optional, can be moved to error handlers module)
+    # Error handlers
     @app.errorhandler(404)
     def not_found(error):
         return "Not Found", 404

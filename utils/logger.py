@@ -1,5 +1,5 @@
 """
-Logger module - migrated from root logger.py
+Logger module - supports dynamic configuration via JSON config.
 """
 import logging
 from logging.handlers import RotatingFileHandler
@@ -11,10 +11,32 @@ import traceback
 
 # Get the project root directory (parent of utils directory)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Default paths (can be overridden by config)
 LOG_DIR = os.path.join(PROJECT_ROOT, "logs")
-os.makedirs(LOG_DIR, exist_ok=True)
 LOG_FILE = os.path.join(LOG_DIR, "app.log")
 LOG_TRACE_FILE = os.path.join(LOG_DIR, "trace.log")
+
+
+def configure_logger_paths(log_dir: str, app_log_file: str = "app.log", trace_log_file: str = "trace.log"):
+    """
+    Configure logger file paths.
+    
+    Args:
+        log_dir: Directory for log files
+        app_log_file: Name of the main log file
+        trace_log_file: Name of the trace log file
+    """
+    global LOG_DIR, LOG_FILE, LOG_TRACE_FILE
+    
+    # Make log_dir absolute if relative
+    if not os.path.isabs(log_dir):
+        log_dir = os.path.join(PROJECT_ROOT, log_dir)
+    
+    LOG_DIR = log_dir
+    os.makedirs(LOG_DIR, exist_ok=True)
+    LOG_FILE = os.path.join(LOG_DIR, app_log_file)
+    LOG_TRACE_FILE = os.path.join(LOG_DIR, trace_log_file)
 
 
 class JSONListFormatter(logging.Formatter):
