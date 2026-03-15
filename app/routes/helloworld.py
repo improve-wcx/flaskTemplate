@@ -6,6 +6,7 @@ Flask + Protocol Buffers 集成示例
 from flask import Blueprint, request, jsonify
 from app.proto import helloworld_pb2
 from app.proto import common_pb2
+from google.protobuf.json_format import ParseDict, MessageToDict
 import uuid
 import time
 from datetime import datetime
@@ -36,23 +37,23 @@ def hello():
         "request_id": "uuid-here"
     }
     """
+    request_id = generate_request_id()
+    
     try:
         # 1. 获取原始 JSON 数据
         json_data = request.get_json()
-        if not json_data:
+        if json_data is None:
             return jsonify({
-                "error": "Invalid JSON data"
+                "error": "Invalid JSON data",
+                "request_id": request_id
             }), 400
         
         # 2. 将 JSON 数据转换为 protobuf 消息
-        #    方式 1: 使用 ParseFromString (需要先序列化)
-        #    方式 2: 使用 FromDict (更简单)
         request_msg = helloworld_pb2.HelloRequest()
-        request_msg.FromDict(json_data)
+        ParseDict(json_data, request_msg)
         
         # 3. 处理业务逻辑
         name = request_msg.name if request_msg.name else "World"
-        request_id = generate_request_id()
         
         # 4. 创建响应消息
         response_msg = helloworld_pb2.HelloResponse(
@@ -61,21 +62,18 @@ def hello():
             request_id=request_id
         )
         
-        # 5. 将 protobuf 消息转换为字典
-        response_dict = {
+        # 5. 返回 JSON 响应
+        return jsonify({
             "message": response_msg.message,
             "timestamp": response_msg.timestamp,
             "request_id": response_msg.request_id
-        }
-        
-        # 6. 返回 JSON 响应
-        return jsonify(response_dict), 200
+        }), 200
         
     except Exception as e:
         # 错误处理
         return jsonify({
             "error": str(e),
-            "request_id": generate_request_id()
+            "request_id": request_id
         }), 500
 
 
@@ -150,7 +148,7 @@ def get_user_info():
         
         # 2. 解析请求
         request_msg = helloworld_pb2.UserInfoRequest()
-        request_msg.FromDict(json_data)
+        ParseDict(json_data, request_msg)
         
         # 3. 模拟查询数据库
         user_id = request_msg.user_id
@@ -182,20 +180,19 @@ def get_user_info():
         user_data = mock_users[user_id]
         response_msg = helloworld_pb2.UserInfoResponse(
             success=True,
-            user=helloworld_pb2.UserInfo(**user_data),
-            message="User found",
-            request_id=generate_request_id()
+            request_id=generate_request_id(),
+            message="User found"
         )
+        # 设置用户信息
+        response_msg.user.user_id = user_data["user_id"]
+        response_msg.user.username = user_data["username"]
+        response_msg.user.email = user_data["email"]
+        response_msg.user.age = user_data["age"]
         
         # 5. 转换为字典并返回
         return jsonify({
             "success": response_msg.success,
-            "user": {
-                "user_id": response_msg.user.user_id,
-                "username": response_msg.user.username,
-                "email": response_msg.user.email,
-                "age": response_msg.user.age
-            },
+            "user": MessageToDict(response_msg.user),
             "message": response_msg.message,
             "request_id": response_msg.request_id
         }), 200
@@ -234,12 +231,13 @@ def list_users():
     try:
         # 1. 获取 JSON 数据
         json_data = request.get_json()
-        if not json_data:
-            return jsonify({"error": "Invalid JSON"}), 400
+        if json_data is None:
+            # 空对象或无效 JSON 都使用默认值
+            json_data = {}
         
         # 2. 解析请求
         request_msg = helloworld_pb2.UserListRequest()
-        request_msg.FromDict(json_data)
+        ParseDict(json_data, request_msg)
         
         page = request_msg.page if request_msg.page else 1
         page_size = request_msg.page_size if request_msg.page_size else 10
@@ -278,17 +276,11 @@ def list_users():
             user_msg.age = user_data["age"]
         
         # 5. 转换为字典并返回
+        users_list = [MessageToDict(user) for user in response_msg.users]
+        
         return jsonify({
             "success": response_msg.success,
-            "users": [
-                {
-                    "user_id": u.user_id,
-                    "username": u.username,
-                    "email": u.email,
-                    "age": u.age
-                }
-                for u in response_msg.users
-            ],
+            "users": users_list,
             "total": response_msg.total,
             "page": response_msg.page,
             "page_size": response_msg.page_size,
