@@ -1,11 +1,15 @@
 """ Flask application factory.
-Usage: from app import app
-app.run()
-Or with run.py: python run.py
+Usage:
+    from app import app
+    app.run()
+    
+Or with run.py:
+    python run.py
 """
 import os
+import logging
 from flask import Flask
-from utils.logger import setup_logger
+from utils.logger import setup_logger, configure_logger_paths
 from config import get_config
 
 def create_app(config_name=None):
@@ -27,6 +31,22 @@ def create_app(config_name=None):
     # Load configuration from JSON
     config = get_config(config_name)
     print(f"[INFO] Configuration loaded successfully")
+    
+    # Configure logger paths BEFORE creating the logger
+    logging_config = config.get('logging', {})
+    log_dir = logging_config.get('log_dir', 'logs')
+    app_log_file = logging_config.get('app_log_file', 'app.log')
+    trace_log_file = logging_config.get('trace_log_file', 'trace.log')
+    
+    configure_logger_paths(
+        log_dir=log_dir,
+        app_log_file=app_log_file,
+        trace_log_file=trace_log_file
+    )
+    print(f"[INFO] Logger paths configured: log_dir={log_dir}")
+    
+    # Setup logger
+    logger = setup_logger(name='app', level=getattr(logging, logging_config.get('level', 'DEBUG')))
     
     # Create Flask app
     app = Flask(__name__)
@@ -87,6 +107,7 @@ def create_app(config_name=None):
     from app.routes.api import api_bp
     from app.routes.demo_protobuf import demo_protobuf_bp
     from app.routes.static_resources import static_bp
+    from app.routes.rel_map import rel_map_bp
     # from app.routes.admin import admin_bp  # Uncomment when needed
     
     # 定义蓝图分类映射
@@ -95,6 +116,7 @@ def create_app(config_name=None):
         'api': '系统',
         'demo_protobuf': 'Protobuf 演示',
         'static_bp': '静态资源',
+        'rel_map': '关系图',
         'admin': '管理'
     }
     
@@ -107,6 +129,8 @@ def create_app(config_name=None):
     print(f"[INFO] Registered blueprint: demo_protobuf_bp")
     app.register_blueprint(static_bp)
     print(f"[INFO] Registered blueprint: static_bp")
+    app.register_blueprint(rel_map_bp)
+    print(f"[INFO] Registered blueprint: rel_map_bp")
     # app.register_blueprint(admin_bp)  # Uncomment when needed
     
     # Auto-collect blueprint routes
@@ -115,6 +139,7 @@ def create_app(config_name=None):
     _collect_routes(api_bp, blueprint_categories['api'])
     _collect_routes(demo_protobuf_bp, blueprint_categories['demo_protobuf'])
     _collect_routes(static_bp, blueprint_categories['static_bp'])
+    _collect_routes(rel_map_bp, blueprint_categories['rel_map'])
     # _collect_routes(admin_bp, blueprint_categories['admin'])  # Uncomment when needed
     
     print(f"[INFO] Route collection completed")
