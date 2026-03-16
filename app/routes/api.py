@@ -2,13 +2,14 @@
 
 from flask import Blueprint, current_app, jsonify
 
-from app.api_registry import get_apis_by_category
+from app.api_registry import get_apis_by_category, register_api
 from utils.logger import get_request_id
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
 
 @api_bp.route("/health")
+@register_api(path="/api/health", method="GET", category="系统", description="健康检查，返回服务状态")
 def health_check():
     """Health check endpoint."""
     request_id = get_request_id()
@@ -17,6 +18,7 @@ def health_check():
 
 
 @api_bp.route("/version")
+@register_api(path="/api/version", method="GET", category="系统", description="返回 API 版本信息")
 def version():
     """API version endpoint."""
     request_id = get_request_id()
@@ -24,6 +26,7 @@ def version():
 
 
 @api_bp.route("/apis")
+@register_api(path="/api/apis", method="GET", category="系统", description="列出所有已注册的 API 接口")
 def list_apis():
     """
     查询当前服务支持的所有 Web 接口

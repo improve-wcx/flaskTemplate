@@ -9,6 +9,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, render_template, request
 
 from app.services.text_submission import add_submission, get_submissions
+from app.api_registry import register_api
 
 # Create blueprint
 text_submission_bp = Blueprint("text_submission", __name__, url_prefix="/api/v1")
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 @text_submission_bp.route("/submission", methods=["POST"])
+@register_api(path="/api/v1/submission", method="POST", category="文本共享", description="提交文本内容")
 def submit_text():
     """
     Submit new text content.
@@ -93,6 +95,7 @@ def submit_text():
 
 
 @text_submission_bp.route("/submissions", methods=["POST"])
+@register_api(path="/api/v1/submissions", method="POST", category="文本共享", description="获取文本提交列表（分页）")
 def get_submissions_list():
     """
     Get paginated list of submissions with optional filters.
@@ -187,6 +190,7 @@ def get_submissions_list():
 
 
 @text_submission_bp.route("/text_submission", methods=["GET"])
+@register_api(path="/api/v1/text_submission", method="GET", category="文本共享", description="渲染文本共享页面")
 def text_submission_page():
     """
     Renders the text submission HTML page.
