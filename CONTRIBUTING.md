@@ -1,52 +1,170 @@
-# Contributing to Flask Template
+# 贡献指南
 
-Thank you for your interest in contributing to this Flask application! This document provides guidelines and information for contributors.
+感谢您对 Flask 项目模板的兴趣！本指南提供贡献者的规范和信息。
 
-## Development Setup
+## 开发环境设置
 
-### Prerequisites
-- Python 3.9 or higher
+### 环境要求
+- Python 3.9+
 - Git
-- Virtual environment tool (venv, virtualenv, or conda)
+- 虚拟环境工具 (venv, virtualenv, 或 conda)
 
-### Initial Setup
-1. Fork and clone the repository:
+### 初始设置
+1. Fork 并克隆仓库：
    ```bash
    git clone https://github.com/your-username/flask-template.git
    cd flask-template
    ```
 
-2. Create and activate virtual environment:
+2. 创建并激活虚拟环境：
    ```bash
    python -m venv env
-   # On Windows:
+   # Windows:
    env\Scripts\activate
-   # On Unix/MacOS:
+   # Linux/macOS:
    source env/bin/activate
    ```
 
-3. Install dependencies:
+3. 安装依赖：
    ```bash
    pip install -r requirements/base.txt
    pip install -r requirements/dev.txt
    ```
 
-4. Install pre-commit hooks:
+4. 安装预提交钩子：
    ```bash
    pre-commit install
    ```
 
-5. Run initial checks:
+5. 运行初始检查：
    ```bash
    pre-commit run --all-files
    ```
 
-## Development Workflow
+## 开发工作流
 
-### 1. Choose an Issue
-- Check the [Issues](../../issues) page for open tasks
-- Look for issues labeled `good first issue` or `help wanted`
-- Comment on the issue to indicate you're working on it
+### 1. 选择 Issue
+- 查看 [Issues](../../issues) 页面寻找开放任务
+- 寻找标记为 `good first issue` 或 `help wanted` 的 issue
+- 在 issue 上评论表示您正在处理
+
+### 2. 创建功能分支
+```bash
+git checkout -b feature/REQ-XXX-description
+# 或修复错误:
+git checkout -b fix/issue-description
+```
+
+### 3. 进行更改
+- 遵循[编码规范](CODING_STANDARDS.md)
+- 为新功能编写测试
+- 根据需要更新文档
+- 运行预提交钩子: `pre-commit run --all-files`
+
+### 4. 测试更改
+```bash
+# 运行所有测试
+pytest tests/ -v
+
+# 运行特定测试文件
+pytest tests/test_specific.py -v
+
+# 生成覆盖率报告
+pytest tests/ --cov=app --cov-report=html
+```
+
+### 5. 提交更改
+```bash
+git add .
+git commit -m "REQ-XXX: 简要描述更改"
+```
+
+预提交钩子将自动运行并可能进行额外更改。
+
+### 6. 推送并创建 Pull Request
+```bash
+git push origin feature/your-branch-name
+```
+
+然后在 GitHub 上创建 Pull Request，包含：
+- 清晰的标题引用 issue
+- 更改描述
+- 截图/演示（如适用）
+- 完成的测试
+
+## 代码审查流程
+
+### 贡献者
+- 及时回复审查评论
+- 将请求的更改作为单独提交或修改现有提交
+- 保持 PR 专注于一个 issue/功能
+
+### 审查者
+- 检查代码风格和规范合规性
+- 验证测试通过和覆盖率充足
+- 手动测试功能（如需要）
+- 建设性地提出改进建议
+
+## 测试指南
+
+### 单元测试
+- 放置在 `tests/` 目录，镜像源码结构
+- 文件命名: `test_*.py`
+- 函数命名: `test_*`
+- 使用描述性测试名称
+- 测试成功和失败情况
+
+### 集成测试
+- 使用真实数据测试 API 端点
+- 测试数据库操作
+- 测试外部服务集成
+
+### 测试覆盖率
+- 目标 80%+ 代码覆盖率
+- 重点关注关键业务逻辑
+- 使用 `pytest-cov` 生成覆盖率报告
+
+## 提交信息规范
+
+遵循约定式提交格式：
+```
+type(scope): description
+
+[optional body]
+
+[optional footer]
+```
+
+类型:
+- `feat`: 新功能
+- `fix`: 错误修复
+- `docs`: 文档更改
+- `style`: 代码风格更改（格式化等）
+- `refactor`: 代码重构
+- `test`: 测试添加/更改
+- `chore`: 维护任务
+
+示例:
+```
+feat(api): add user authentication endpoint
+fix(routes): handle empty request body gracefully
+docs(readme): update installation instructions
+```
+
+## 获取帮助
+
+- 查看现有 [Issues](../../issues) 和文档
+- 在 [Discussions](../../discussions) 中提问
+- 加入社区聊天（如可用）
+
+## 认可
+
+贡献者将通过以下方式获得认可：
+- GitHub 贡献者统计
+- CHANGELOG.md 中的重大贡献
+- 发布说明
+
+感谢您帮助改进这个项目！🎉
 
 ### 2. Create a Feature Branch
 ```bash

@@ -1,103 +1,84 @@
-# 快速参考 - 跨平台开发命令
+# 快速参考
 
-## 🪟 Windows 命令
+跨平台开发命令和配置参考。
 
-### 虚拟环境
+## 平台命令
+
+### Windows
+
 ```powershell
-# 创建
+# 虚拟环境
 py -m venv env
-
-# 激活
 .\env\Scripts\Activate.ps1
 
-# 退出
-deactivate
-```
-
-### 依赖安装
-```powershell
-# 自动检测平台
+# 依赖安装
 python scripts\install_deps.py
+# 或
+pip install -r requirements/windows.txt
 
-# 手动安装 Windows 依赖
-pip install -r requirements\windows.txt
+# 开发命令
+python scripts/generate_protobuf_win.py  # 生成 Protobuf
+pytest tests/ -v                         # 运行测试
+python run.py                            # 启动服务
 
-# 仅安装基础依赖
-pip install -r requirements\base.txt
-```
-
-### 开发命令
-```powershell
-# 生成 Protobuf 代码
-python scripts\generate_protobuf_win.py
-
-# 运行测试
-pytest tests/ -v
-
-# 启动开发服务器
-python run.py
-
-# 使用 Make 脚本
+# Make 脚本
 .\make.ps1 test
 .\make.ps1 run
 .\make.ps1 protobuf
 ```
 
-### 生产部署
-```powershell
-# 使用 Waitress
-python wsgi.py
+### Linux/macOS
 
-# 或直接运行
-waitress-serve --host=0.0.0.0 --port=5000 wsgi:app
-```
-
----
-
-## 🐧 Linux/Ubuntu 命令
-
-### 虚拟环境
 ```bash
-# 创建
+# 虚拟环境
 python3 -m venv env
-
-# 激活
 source env/bin/activate
 
-# 退出
-deactivate
-```
-
-### 依赖安装
-```bash
-# 自动检测平台
+# 依赖安装
 python scripts/install_deps.py
-
-# 手动安装 Linux 依赖
+# 或
 pip install -r requirements/linux.txt
 
-# 仅安装基础依赖
-pip install -r requirements/base.txt
-```
+# 开发命令
+python scripts/generate_protobuf.py     # 生成 Protobuf
+pytest tests/ -v                        # 运行测试
+python run.py                           # 启动服务
 
-### 开发命令
-```bash
-# 生成 Protobuf 代码
-python scripts/generate_protobuf.py
-
-# 运行测试
-pytest tests/ -v
-
-# 启动开发服务器
-python run.py
-
-# 使用 Make
+# Make 脚本
 make test
 make run
 make protobuf
 ```
 
-### 生产部署
+## 生产部署
+
+### Windows
+```powershell
+pip install waitress
+python wsgi.py
+```
+
+### Linux/macOS
+```bash
+pip install gunicorn
+gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
+```
+
+## 依赖文件
+
+| 文件 | 说明 | 适用平台 |
+|------|------|---------|
+| `base.txt` | 核心依赖 | 所有平台 |
+| `test.txt` | 测试工具 | 所有平台 |
+| `dev.txt` | 开发工具 | 所有平台 |
+| `windows.txt` | Windows 完整依赖 | Windows |
+| `linux.txt` | Linux 完整依赖 | Linux/macOS |
+
+## 故障排除
+
+- **端口占用**：修改 `config/config.json` 中的端口
+- **Protobuf 失败**：确保安装 `protoc` 编译器
+- **依赖冲突**：删除 `env/` 目录，重新创建虚拟环境
 ```bash
 # 使用 Gunicorn
 gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app

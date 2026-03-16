@@ -1,45 +1,46 @@
-# Flask Project Template
+# Flask 项目模板
 
-一个结构化的 Flask 项目模板，支持模块化开发和多环境配置。
+一个结构化的 Flask Web 应用模板，支持跨平台开发和模块化架构。
 
-## 🌍 跨平台支持
+## ✨ 项目特性
 
-本项目支持以下平台：
-
-| 平台 | Python 版本 | WSGI 服务器 | 状态 |
-|------|------------|-----------|------|
-| **Windows** | 3.9+ | Waitress | ✅ 生产就绪 |
-| **Ubuntu/Linux** | 3.9+ | Gunicorn | ✅ 生产就绪 |
-| **macOS** | 3.9+ | Gunicorn | ✅ 测试通过 |
-
----
+- **🔧 模块化架构** - 按功能拆分的路由和服务模块
+- **📊 结构化日志** - JSON 格式日志，支持请求追踪
+- **🧪 完整测试** - 48+ 单元测试覆盖核心功能
+- **📡 动态 API 注册** - 自动收集和分类所有 API 端点
+- **🏭 应用工厂模式** - 灵活的应用创建和配置
+- **📋 Protocol Buffers** - 高性能数据序列化支持
+- **💻 命令行客户端** - 完整的 CLI 接口支持
+- **🌍 跨平台兼容** - Windows/Linux/macOS 无缝切换
+- **📝 富文本共享** - 完整的文本提交和展示系统
 
 ## 🚀 快速开始
 
-### 方式一：自动安装（推荐）
+### 环境要求
+
+- **Python**: 3.9+
+- **操作系统**: Windows 10+ / Ubuntu 18.04+ / macOS 10.15+
+
+### 自动安装（推荐）
 
 ```bash
-# Windows
-python scripts\install_deps.py
-
-# Linux/macOS
+# 自动检测平台并安装依赖
 python scripts/install_deps.py
 ```
 
-### 方式二：手动安装
+### 手动安装
 
 #### Windows
-
-```bash
+```powershell
 # 1. 创建虚拟环境
 py -m venv env
 .\env\Scripts\Activate.ps1
 
 # 2. 安装依赖
-pip install -r requirements\windows.txt
+pip install -r requirements/windows.txt
 
 # 3. 生成 Protobuf 代码
-python scripts\generate_protobuf_win.py
+python scripts/generate_protobuf_win.py
 
 # 4. 运行测试
 pytest tests/ -v
@@ -48,8 +49,7 @@ pytest tests/ -v
 python run.py
 ```
 
-#### Linux/Ubuntu
-
+#### Linux/macOS
 ```bash
 # 1. 创建虚拟环境
 python3 -m venv env
@@ -68,36 +68,108 @@ pytest tests/ -v
 python run.py
 ```
 
-### 使用 Make 命令
+## 📱 使用说明
 
-#### Windows (PowerShell)
-```powershell
-.\make.ps1 install-dev    # 安装开发依赖
-.\make.ps1 protobuf       # 生成 Protobuf 代码
-.\make.ps1 test           # 运行测试
-.\make.ps1 run            # 启动服务
-```
+### 开发服务器
 
-#### Linux/macOS
+启动开发服务器：`http://127.0.0.0:5000`
+
 ```bash
-make install-dev          # 安装开发依赖
-make protobuf             # 生成 Protobuf 代码
-make test                 # 运行测试
-make run                  # 启动服务
+python run.py
 ```
 
----
+### 核心接口
 
-## ✨ 项目特点
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| `GET /` | - | 首页 |
+| `GET /api/health` | - | 健康检查 |
+| `GET /api/apis` | - | API 列表 |
+| `GET /api/v1/demo/hello` | - | Protobuf 演示 |
+| `POST /api/v1/text` | 富文本提交 | 文本共享系统 |
 
-- **JSON 配置** - 统一管理所有环境配置
-- **模块化路由** - 按功能拆分路由模块
-- **结构化日志** - JSON 格式日志输出，支持 request_id 追踪
-- **完整测试** - 48+ 单元测试覆盖
-- **动态 API 注册** - 自动收集和分类所有 API 端点
-- **应用工厂** - 灵活的应用创建模式
-- **Protocol Buffers** - 支持 protobuf 数据序列化
-- **命令行客户端** - 所有 API 接口均可通过 CLI 调用
+### 命令行客户端
+
+```bash
+# 查看帮助
+python cli.py --help
+
+# 健康检查
+python cli.py health
+
+# API 列表
+python cli.py apis
+
+# 文本提交示例
+python cli.py text-submit --content "Hello World"
+```
+
+## 📚 文档
+
+- **[开发者指南](doc/getting-started.md)** - 新功能开发指南
+- **[部署文档](doc/deployment/README.md)** - 环境部署说明
+- **[API 文档](doc/api/README.md)** - 接口使用说明
+- **[测试指南](doc/testing/README.md)** - 测试编写规范
+
+## 🛠️ 开发工具
+
+### 代码质量
+
+```bash
+# 安装开发依赖
+pip install -r requirements/dev.txt
+
+# 代码格式化
+black app/ tests/
+
+# 导入排序
+isort app/ tests/
+
+# 代码检查
+flake8 app/ tests/
+
+# 类型检查
+mypy app/
+```
+
+### 测试运行
+
+```bash
+# 运行所有测试
+pytest tests/ -v
+
+# 生成覆盖率报告
+pytest tests/ --cov=app --cov-report=html
+```
+
+## 📦 项目结构
+
+```
+flaskTemplate/
+├── app/                    # 应用核心
+│   ├── __init__.py        # 应用工厂
+│   ├── routes/            # 路由模块
+│   ├── services/          # 业务逻辑
+│   ├── models/            # 数据模型
+│   └── proto/             # Protobuf 定义
+├── config/                 # 配置管理
+├── tests/                  # 测试用例
+├── scripts/                # 构建脚本
+├── requirements/           # 依赖管理
+├── doc/                    # 项目文档
+└── logs/                   # 日志文件
+```
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！请先阅读：
+
+- [贡献指南](CONTRIBUTING.md)
+- [编码规范](CODING_STANDARDS.md)
+
+## 📄 许可证
+
+MIT License
 - **跨平台支持** - Windows/Linux/macOS 无缝切换
 
 ---

@@ -1,52 +1,51 @@
 # 开发者指南
 
-> 本指南帮助开发者快速上手并了解如何添加新功能。
+本指南帮助开发者快速上手并了解如何添加新功能。
 
 ## 🚀 快速开始
 
 ### 环境要求
-
-- Python 3.12+
-- pip 或 poetry
-- Protocol Buffers 编译器 (protoc) - 仅当使用 protobuf 时
+- Python 3.9+
+- pip
+- Protocol Buffers 编译器 (protoc，仅使用 protobuf 时需要)
 
 ### 安装步骤
-
 ```bash
 # 1. 克隆项目
 git clone <repository-url>
-cd projectTemplate
+cd flaskTemplate
 
 # 2. 创建虚拟环境
 python3 -m venv env
 source env/bin/activate  # Linux/Mac
-# 或 env\Scripts\activate  # Windows
+# Windows: env\Scripts\activate
 
 # 3. 安装依赖
-# Linux/macOS:
-pip install -r requirements/linux.txt
+# 自动检测平台
+python scripts/install_deps.py
 
-# Windows:
-# pip install -r requirements/windows.txt
+# 或手动安装
+# Linux/macOS: pip install -r requirements/linux.txt
+# Windows: pip install -r requirements/windows.txt
 
-# 或使用自动检测脚本:
-# python scripts/install_deps.py
-
-# 4. (可选) 安装 protoc 编译器
-# Ubuntu/Debian: sudo apt-get install protobuf-compiler
-# macOS: brew install protobuf
-# 或从 https://github.com/protocolbuffers/protobuf/releases 下载
+# 4. 生成 Protobuf 代码 (如需要)
+python scripts/generate_protobuf.py  # Linux/macOS
+# Windows: python scripts\generate_protobuf_win.py
 ```
 
 ### 运行应用
-
 ```bash
-# 开发模式（自动重载）
+# 开发模式
 python run.py
 
 # 生产模式
+# Linux/macOS
 pip install gunicorn
 gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
+
+# Windows
+pip install waitress
+python wsgi.py
 ```
 
 ### 运行测试
@@ -55,148 +54,146 @@ gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
 pytest tests/ -v
 ```
 
----
-
-## 📝 如何添加新接口
-
-添加一个新接口需要完成以下步骤：
+## 📝 添加新接口
 
 ### 1. 创建路由文件
-
-在 `app/routes/` 目录下创建新的路由文件：
+在 `app/routes/` 创建新路由文件：
 
 ```python
-# app/routes/users.py
-from flask import Blueprint, request, jsonify
+# app/routes/example.py
+from flask import Blueprint, jsonify
 from utils.logger import get_request_id
 
-users_bp = Blueprint('users', __name__, url_prefix='/api/users')
+example_bp = Blueprint('example', __name__, url_prefix='/api/example')
 
-@users_bp.route('/', methods=['GET'])
-def list_users():
-    """获取用户列表"""
+@example_bp.route('/', methods=['GET'])
+def get_example():
+    """获取示例数据"""
     request_id = get_request_id()
-    # 实现逻辑
-    return jsonify([])
+    return jsonify({"message": "Hello World", "request_id": request_id})
 ```
 
 ### 2. 注册路由
-
-在 `app/__init__.py` 中注册新蓝图，并指定分类（如 `系统`, `用户管理` 等）：
+在 `app/__init__.py` 中注册蓝图：
 
 ```python
-def create_app(config_name=None):
-    app = Flask(__name__)
-    
-    # 注册新路由
-    from app.routes.users import users_bp
-    app.register_blueprint(users_bp)
-    
-    # 路由会自动被收集到 /apis 端点
-    # 分类在蓝图注册时自动确定
-    return app
+# 注册新路由
+from app.routes.example import example_bp
+app.register_blueprint(example_bp)
 ```
 
-**注意**: 所有注册的路由会自动被 `/apis` 端点收集和分类，无需手动维护 API 列表。
-
-### 3. 添加 CLI 支持
-
-在 `cli.py` 中添加对应的命令行命令：
+### 3. 添加 CLI 支持 (可选)
+在 `cli.py` 中添加命令：
 
 ```python
-def cmd_users(args):
-    """用户列表命令"""
-    url = f"{args.base_url}/api/users"
+def cmd_example(args):
+    """示例命令"""
+    url = f"{args.base_url}/api/example"
     status_code, data = make_request(url)
     return print_response(status_code, data)
-
-# 在 main() 中添加子命令
-users_parser = subparsers.add_parser('users', help='用户列表')
-users_parser.set_defaults(func=cmd_users)
 ```
 
-### 4. 编写单元测试
-
-在 `tests/test_routes/` 下创建测试文件：
+### 4. 编写测试
+在 `tests/test_routes/` 创建测试：
 
 ```python
-# tests/test_routes/test_users.py
+# tests/test_routes/test_example.py
 import unittest
 from app import create_app
 
-class TestUsers(unittest.TestCase):
+class TestExample(unittest.TestCase):
     def setUp(self):
         self.app = create_app()
         self.client = self.app.test_client()
     
-    def test_list_users(self):
-        response = self.client.get('/api/users')
+    def test_get_example(self):
+        response = self.client.get('/api/example')
         self.assertEqual(response.status_code, 200)
-
-if __name__ == '__main__':
-    unittest.main()
+        data = response.get_json()
+        self.assertIn('request_id', data)
 ```
 
-### 5. 编写接口文档
-
-在 `doc/api/` 或 `doc/routes/` 下添加文档：
-
-```markdown
-# 用户接口
-
-## 获取用户列表
-
-**GET** `/api/users`
-
-### 请求参数
-
-无
-
-### 响应示例
-
-```json
-{
-  "users": [],
-  "total": 0
-}
-```
-```
-
-### 6. 更新主文档
-
-- 更新 `doc/routes/README.md` 添加新路由说明
-- 更新 `doc/cli/README.md` 添加新命令说明
-- 更新主 `README.md`（如适用）
+### 5. 更新文档
+- 在 `doc/api/README.md` 添加 API 说明
+- 在 `doc/cli/README.md` 添加 CLI 命令说明
 
 ### 检查清单
-
 - [ ] 路由文件已创建
 - [ ] 路由已注册
-- [ ] CLI 命令已添加
-- [ ] 单元测试已编写（至少覆盖正常情况和异常情况）
-- [ ] 接口文档已更新
-- [ ] CLI 文档已更新
-- [ ] 所有测试通过：`pytest tests/ -v`
+- [ ] 测试已编写 (`pytest tests/ -v`)
+- [ ] 文档已更新
 
----
+## 📦 添加 Protocol Buffers
 
-## 📦 如何添加 Protocol Buffers
-
-### 1. 编写 .proto 文件
-
-在 `proto/` 目录下创建新的 proto 文件：
+### 1. 创建 .proto 文件
+在 `proto/` 目录创建 proto 文件：
 
 ```protobuf
-// proto/user.proto
+// proto/example.proto
 syntax = "proto3";
 
-package user;
+package example;
 
-message User {
-  string user_id = 1;
-  string username = 2;
-  string email = 3;
+message ExampleMessage {
+  string content = 1;
+  string request_id = 2;
 }
+```
+
+### 2. 生成 Python 代码
+```bash
+# Linux/macOS
+python scripts/generate_protobuf.py
+
+# Windows
+python scripts\generate_protobuf_win.py
+```
+
+### 3. 在路由中使用
+```python
+from app.proto import example_pb2
+from google.protobuf.json_format import MessageToDict
+
+@example_bp.route('/', methods=['POST'])
+def create_example():
+    request_msg = example_pb2.ExampleMessage()
+    # 使用 request_msg...
+    return jsonify(MessageToDict(response_msg))
+```
+
+## 🧪 测试规范
+
+### 编写测试
+```python
+# tests/test_routes/test_example.py
+import unittest
+from app import create_app
+
+class TestExample(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app('testing')
+        self.client = self.app.test_client()
+    
+    def test_success(self):
+        response = self.client.get('/api/example')
+        self.assertEqual(response.status_code, 200)
+    
+    def test_error(self):
+        response = self.client.get('/api/example/invalid')
+        self.assertEqual(response.status_code, 404)
+```
+
+### 运行测试
+```bash
+# 运行所有测试
+pytest tests/ -v
+
+# 运行特定测试
+pytest tests/test_routes/test_example.py -v
+
+# 生成覆盖率
+pytest tests/ --cov=app --cov-report=html
+```
 
 message UserRequest {
   string user_id = 1;
@@ -210,94 +207,58 @@ message UserResponse {
 }
 ```
 
-### 2. 编译 proto 文件
+## 📚 文档规范
 
+### 文档结构
+```
+doc/
+├── README.md              # 文档索引
+├── getting-started.md     # 开发者指南（本文件）
+├── QUICK_REFERENCE.md     # 快速命令参考
+├── api/                   # API 文档
+├── cli/                   # CLI 文档
+├── routes/                # 路由文档
+├── testing/               # 测试文档
+└── deployment/            # 部署文档
+```
+
+### 编写原则
+- **简明扼要**: 避免冗余，只写必要信息
+- **示例驱动**: 提供可运行的代码示例
+- **版本同步**: 确保文档与代码版本一致
+
+### 更新时机
+- 添加新接口时
+- 修改接口行为时
+- 添加/修改 CLI 命令时
+- 部署流程变化时
+
+## 🔧 常见问题
+
+### Protobuf 编译失败
 ```bash
-# 使用项目脚本
-python scripts/generate_protobuf.py
+# 安装 protoc
+# Ubuntu/Debian
+sudo apt-get install protobuf-compiler
 
-# 或手动编译
-protoc --python_out=app/proto --pyi_out=app/proto proto/user.proto
+# macOS
+brew install protobuf
+
+# 验证安装
+protoc --version
 ```
 
-### 3. 在路由中使用
-
-```python
-from app.proto import user_pb2
-from google.protobuf.json_format import ParseDict, MessageToDict
-
-@users_bp.route('/<user_id>', methods=['GET'])
-def get_user(user_id):
-    request_id = get_request_id()
-    
-    # 构建响应
-    response_msg = user_pb2.UserResponse(
-        success=True,
-        message="User found",
-        request_id=request_id
-    )
-    response_msg.user.user_id = user_id
-    
-    return jsonify(MessageToDict(response_msg))
+### 虚拟环境问题
+```bash
+# 删除并重新创建
+rm -rf env
+python3 -m venv env
+source env/bin/activate
+pip install -r requirements/dev.txt
 ```
 
-### 4. 更新文档
-
-在 `doc/protobuf/` 下添加说明：
-
-```markdown
-# User 消息定义
-
-## User
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| user_id | string | 用户 ID |
-| username | string | 用户名 |
-| email | string | 邮箱 |
-```
-
-### 检查清单
-
-- [ ] .proto 文件已创建
-- [ ] 包名已定义（使用有意义的名称，如 `demo`, `user`, `order` 等）
-- [ ] 已编译生成 .pb2.py 和 .pb2.pyi 文件
-- [ ] 路由中正确使用 ParseDict/MessageToDict
-- [ ] 文档已更新
-
----
-
-## 🧪 测试规范
-
-### 测试类型
-
-1. **单元测试** - 测试单个函数或方法
-2. **集成测试** - 测试多个组件协作
-3. **CLI 测试** - 测试命令行客户端
-
-### 编写测试
-
-```python
-# tests/test_routes/test_example.py
-import unittest
-from app import create_app
-
-class TestExample(unittest.TestCase):
-    def setUp(self):
-        """测试前准备"""
-        self.app = create_app()
-        self.client = self.app.test_client()
-    
-    def tearDown(self):
-        """测试后清理"""
-        pass
-    
-    def test_success_case(self):
-        """测试成功情况"""
-        response = self.client.get('/api/example')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertIn('request_id', data)
+### 端口被占用
+修改 `config/config.json` 中的 `port` 配置项。
     
     def test_error_case(self):
         """测试错误情况"""
