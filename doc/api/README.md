@@ -237,6 +237,96 @@ def create_user():
     }), 201
 ```
 
+## 文本共享 API
+
+### 提交文本内容
+
+```http
+POST /api/v1/submission
+Content-Type: application/json
+
+{
+  "content": "要提交的文本内容"
+}
+```
+
+**请求参数：**
+- `content` (string, required): 文本内容，不能为空，最大 1MB
+
+**成功响应 (201):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid-string",
+    "created_at": "2023-12-01T10:30:00+08:00"
+  },
+  "message": "Submission successful"
+}
+```
+
+**错误响应：**
+```json
+{
+  "success": false,
+  "message": "Content is required"
+}
+```
+
+### 获取文本列表
+
+```http
+POST /api/v1/submissions
+Content-Type: application/json
+
+{
+  "page": 1,
+  "per_page": 20,
+  "start_date": "2023-01-01",
+  "end_date": "2023-12-31",
+  "keyword": "搜索关键词",
+  "case_sensitive": false
+}
+```
+
+**请求参数：**
+- `page` (int, optional): 页码，默认 1
+- `per_page` (int, optional): 每页数量，默认 20，最大 100
+- `start_date` (string, optional): 开始日期，格式 YYYY-MM-DD
+- `end_date` (string, optional): 结束日期，格式 YYYY-MM-DD
+- `keyword` (string, optional): 搜索关键词
+- `case_sensitive` (bool, optional): 区分大小写，默认 false
+
+**成功响应 (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "uuid-string",
+        "content": "文本内容",
+        "created_at": "2023-12-01T10:30:00+08:00",
+        "ip_address": "127.0.0.1",
+        "user_agent": "Mozilla/5.0..."
+      }
+    ],
+    "total": 100,
+    "page": 1,
+    "per_page": 20,
+    "total_pages": 5
+  }
+}
+```
+
+### 文本提交页面
+
+```http
+GET /api/v1/text_submission
+```
+
+返回 HTML 页面用于文本提交和浏览。
+
 ## 最佳实践
 
 1. **使用 HTTPS** - 生产环境必须

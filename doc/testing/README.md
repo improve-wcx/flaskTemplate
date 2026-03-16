@@ -12,15 +12,20 @@ tests/
 │   ├── __init__.py
 │   ├── test_main.py         # 主路由测试
 │   ├── test_api.py          # API 路由测试
-│   └── test_demo_protobuf.py # Protobuf 演示测试
+│   ├── test_demo_protobuf.py # Protobuf 演示测试
+│   └── test_text_submission.py # 文本提交路由测试
+├── test_services/           # 服务层测试
+│   ├── __init__.py
+│   └── test_text_submission.py # 文本提交服务测试
 └── utils/                   # 测试工具
     └── __init__.py
 ```
 
 ## 测试覆盖
 
-- **48+ 单元测试** - 覆盖所有路由和功能
+- **75+ 单元测试** - 覆盖所有路由和功能
 - **路由测试** - 测试所有 API 端点
+- **服务测试** - 测试业务逻辑层
 - **配置测试** - 测试配置加载
 - **集成测试** - 测试跨模块功能
 

@@ -18,12 +18,10 @@
 ### 管理路由 (admin.py)
 - `GET /admin/` - 管理后台 (待实现)
 
-### Protobuf 演示路由 (demo_protobuf.py)
-- `GET /api/v1/demo/hello` - 简单问候 (GET)
-- `POST /api/v1/demo/hello` - 带参数的问候 (POST)
-- `GET /api/v1/demo/user/<user_id>` - 获取用户信息
-- `POST /api/v1/demo/users` - 获取用户列表
-- `POST /api/v1/demo/echo` - Echo 接口
+### 文本共享路由 (text_submission.py)
+- `POST /api/v1/submission` - 提交文本内容
+- `POST /api/v1/submissions` - 获取文本列表（支持分页、搜索、过滤）
+- `GET /api/v1/text_submission` - 文本提交页面
 
 ## 命令行客户端
 

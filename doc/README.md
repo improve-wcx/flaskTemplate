@@ -54,6 +54,7 @@ doc/
 - **[日志系统](log/README.md)** - 结构化日志和 Request ID
 - **[Protobuf 指南](protobuf/README.md)** - 数据序列化
 - **[路由开发](routes/README.md)** - 添加和修改路由
+- **[文本共享](api/README.md#文本共享-api)** - 富文本提交和展示系统
 
 ### 进阶主题
 

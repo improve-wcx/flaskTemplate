@@ -1,16 +1,31 @@
-""" Flask application factory.
-Usage:
-    from app import app
-    app.run()
-    
-Or with run.py:
-    python run.py
-"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import os
 import logging
 from flask import Flask
 from utils.logger import setup_logger, configure_logger_paths
 from config import get_config
+# 注册蓝图
+from app.routes.main import main_bp
+from app.routes.api import api_bp
+from app.routes.demo_protobuf import demo_protobuf_bp
+from app.routes.static_resources import static_bp
+from app.routes.rel_map import rel_map_bp
+from app.routes.text_submission import text_submission_bp
+# from app.routes.admin import admin_bp  # Uncomment when needed
+# Log application ready
+from app.api_registry import get_registry_count
+
+# 定义蓝图分类映射
+blueprint_categories = {
+    'main': '系统',
+    'api': '系统',
+    'demo_protobuf': 'Protobuf 演示',
+    'static_bp': '静态资源',
+    'rel_map': '关系图',
+    'admin': '管理',
+    'text_submission': '文本共享'
+}
 
 def create_app(config_name=None):
     """
@@ -102,24 +117,6 @@ def create_app(config_name=None):
         count = len([k for k in _api_registry if _api_registry[k].get('module') == blueprint.name])
         app.logger.info(f"Collected {count} routes from blueprint {blueprint.name} (category: {category})")
     
-    # 注册蓝图
-    from app.routes.main import main_bp
-    from app.routes.api import api_bp
-    from app.routes.demo_protobuf import demo_protobuf_bp
-    from app.routes.static_resources import static_bp
-    from app.routes.rel_map import rel_map_bp
-    # from app.routes.admin import admin_bp  # Uncomment when needed
-    
-    # 定义蓝图分类映射
-    blueprint_categories = {
-        'main': '系统',
-        'api': '系统',
-        'demo_protobuf': 'Protobuf 演示',
-        'static_bp': '静态资源',
-        'rel_map': '关系图',
-        'admin': '管理'
-    }
-    
     print(f"[INFO] Registering blueprints...")
     app.register_blueprint(main_bp)
     print(f"[INFO] Registered blueprint: main_bp")
@@ -131,6 +128,8 @@ def create_app(config_name=None):
     print(f"[INFO] Registered blueprint: static_bp")
     app.register_blueprint(rel_map_bp)
     print(f"[INFO] Registered blueprint: rel_map_bp")
+    app.register_blueprint(text_submission_bp)
+    print(f"[INFO] Registered blueprint: text_submission_bp")
     # app.register_blueprint(admin_bp)  # Uncomment when needed
     
     # Auto-collect blueprint routes
@@ -140,6 +139,7 @@ def create_app(config_name=None):
     _collect_routes(demo_protobuf_bp, blueprint_categories['demo_protobuf'])
     _collect_routes(static_bp, blueprint_categories['static_bp'])
     _collect_routes(rel_map_bp, blueprint_categories['rel_map'])
+    _collect_routes(text_submission_bp, blueprint_categories['text_submission'])
     # _collect_routes(admin_bp, blueprint_categories['admin'])  # Uncomment when needed
     
     print(f"[INFO] Route collection completed")
@@ -182,8 +182,6 @@ def create_app(config_name=None):
         
         return response
     
-    # Log application ready
-    from app.api_registry import get_registry_count
     print(f"[INFO] Flask application initialized successfully")
     print(f"[INFO] Total APIs registered: {get_registry_count()}")
     

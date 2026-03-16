@@ -4,9 +4,13 @@
 
 本项目提供了服务层的基础架构示例，但尚未实现具体的业务逻辑层。
 
-### 已提供的示例
+### 已提供的服务
 
 - **BaseService** (`app/services/base.py`) - 基础服务类，提供 request_id 日志支持
+- **TextSubmissionService** (`app/services/text_submission.py`) - 文本提交存储服务
+  - 支持富文本内容存储
+  - 提供分页和搜索功能
+  - 线程安全的文件持久化
 - 示例展示了如何在服务层使用结构化日志
 
 ### 规划中的服务

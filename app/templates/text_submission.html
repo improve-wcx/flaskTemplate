@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <title>文本提交系统</title>
+
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+
+    <style>
+      body {
+        background: #f5f6fa;
+      }
+
+      .container {
+        max-width: 1000px;
+      }
+
+      .editor {
+        min-height: 140px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 12px;
+        background: white;
+        font-family: monospace;
+        white-space: pre-wrap;
+        overflow: auto;
+      }
+
+      .list-item {
+        background: white;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      }
+
+      .content {
+        white-space: pre-wrap;
+        font-family: monospace;
+        background: #fafafa;
+        padding: 12px;
+        border-radius: 6px;
+      }
+
+      .meta {
+        font-size: 12px;
+        color: #888;
+      }
+
+      .copy-btn {
+        float: right;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: #999;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container mt-4">
+      <h3 class="mb-4">文本共享系统</h3>
+
+      <!-- 输入区域 -->
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="editor" id="editor" contenteditable="true"></div>
+
+          <div class="mt-3 text-end">
+            <button class="btn btn-primary" id="submitBtn">提交</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 搜索 -->
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-md-3">
+              <input type="date" id="startDate" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+              <input type="date" id="endDate" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+              <input
+                type="text"
+                id="keyword"
+                placeholder="关键字搜索"
+                class="form-control"
+              />
+            </div>
+
+            <div class="col-md-2">
+              <button class="btn btn-success w-100" id="searchBtn">搜索</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 列表 -->
+
+      <div id="list"></div>
+
+      <div id="loading" class="loading">加载中...</div>
+    </div>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const API_SUBMIT = "/api/v1/submission"; // Changed to relative path
+      const API_LIST = "/api/v1/submissions"; // Changed to relative path
+
+      let page = 1;
+      let totalPages = 1;
+      let loading = false;
+      let keyword = "";
+      let startDate = "";
+      let endDate = "";
+
+      /* 提交 */
+
+      document.getElementById("submitBtn").onclick = async () => {
+        let editor = document.getElementById("editor");
+
+        let content = editor.innerText; // 保留换行和空格
+
+        if (!content.trim()) {
+          alert("内容不能为空");
+          return;
+        }
+
+        let res = await fetch(API_SUBMIT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: content,
+          }),
+        });
+
+        let data = await res.json();
+
+        if (data.success) {
+          editor.innerText = "";
+
+          page = 1;
+          document.getElementById("list").innerHTML = "";
+          loadData();
+
+          alert("提交成功");
+        } else {
+          alert(data.message);
+        }
+      };
+
+      /* 搜索 */
+
+      document.getElementById("searchBtn").onclick = () => {
+        keyword = document.getElementById("keyword").value;
+        startDate = document.getElementById("startDate").value;
+        endDate = document.getElementById("endDate").value;
+
+        page = 1;
+        document.getElementById("list").innerHTML = "";
+
+        loadData();
+      };
+
+      /* 加载数据 */
+
+      async function loadData() {
+        if (loading || page > totalPages) return;
+
+        loading = true;
+
+        document.getElementById("loading").style.display = "block";
+
+        let res = await fetch(API_LIST, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            page: page,
+            per_page: 20,
+            keyword: keyword,
+            start_date: startDate,
+            end_date: endDate,
+          }),
+        });
+
+        let data = await res.json();
+
+        if (data.success) {
+          totalPages = data.data.total_pages;
+
+          render(data.data.items);
+
+          page++;
+        }
+
+        loading = false;
+
+        document.getElementById("loading").style.display = "none";
+      }
+
+      /* 渲染 */
+
+      function render(items) {
+        let list = document.getElementById("list");
+
+        items.forEach((item) => {
+          let div = document.createElement("div");
+
+          div.className = "list-item";
+
+          div.innerHTML = `
+
+<div class="meta">
+
+${item.created_at}
+
+<button class="btn btn-sm btn-outline-secondary copy-btn">复制</button>
+
+</div>
+
+<div class="content"></div>
+
+`;
+
+          let contentDiv = div.querySelector(".content");
+
+          contentDiv.textContent = item.content; // 保留全部字符
+
+          let copyBtn = div.querySelector(".copy-btn");
+
+          copyBtn.onclick = () => {
+            navigator.clipboard.writeText(item.content);
+
+            copyBtn.innerText = "已复制";
+
+            setTimeout(() => {
+              copyBtn.innerText = "复制";
+            }, 1000);
+          };
+
+          list.appendChild(div);
+        });
+      }
+
+      /* 下拉加载 */
+
+      window.addEventListener("scroll", () => {
+        let scrollTop = document.documentElement.scrollTop;
+        let winHeight = window.innerHeight;
+        let fullHeight = document.documentElement.scrollHeight;
+
+        if (scrollTop + winHeight > fullHeight - 200) {
+          loadData();
+        }
+      });
+
+      /* 首次加载 */
+
+      loadData();
+    </script>
+  </body>
+</html>
