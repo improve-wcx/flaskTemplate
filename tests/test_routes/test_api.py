@@ -36,8 +36,8 @@ def test_list_apis(client):
     assert 'apis' in data
     assert 'request_id' in data
     
-    # 验证总数
-    assert data['total'] > 0
+    # 验证总数（现在应该包含主路由）
+    assert data['total'] >= 12  # 2(main) + 3(api) + 5(demo) + 2(resources)
     
     # 验证 apis 是字典
     assert isinstance(data['apis'], dict)
@@ -45,6 +45,7 @@ def test_list_apis(client):
     # 验证至少包含几个分类
     assert '系统' in data['apis']
     assert 'Protobuf 演示' in data['apis']
+    # 静态资源分类可能不再需要，因为主路由已经处理
 
 
 def test_list_apis_contains_health(client):

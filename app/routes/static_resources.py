@@ -5,16 +5,17 @@
 from flask import Blueprint, render_template, send_from_directory, current_app
 import os
 
-static_bp = Blueprint('static_bp', __name__, url_prefix='/static-pages')
+# 保留 static_bp 用于管理静态资源相关页面（如果需要独立分类）
+static_bp = Blueprint('static_bp', __name__, url_prefix='/resources')
 
 
 @static_bp.route('/')
 def static_index():
-    """静态资源首页"""
+    """静态资源首页（备用）"""
     return render_template('index.html')
 
 
 @static_bp.route('/demo')
 def static_demo():
-    """静态资源演示页面"""
+    """静态资源演示页面（备用）"""
     return render_template('static_demo.html')

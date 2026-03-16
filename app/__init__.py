@@ -52,11 +52,15 @@ def create_app(config_name=None):
         from app.api_registry import _api_registry
         
         for rule in app.url_map.iter_rules():
+            # 只收集当前蓝图的路由
             if not rule.endpoint.startswith(blueprint.name + '.'):
                 continue
-            if rule.endpoint == 'static' or rule.endpoint.startswith(blueprint.name + '.static'):
+            
+            # 排除 Flask 内置的静态文件端点（仅排除确切的 'static'）
+            if rule.endpoint == 'static':
                 continue
             
+            # 收集路由
             full_path = rule.rule.rstrip('/') if rule.rule != '/' else rule.rule
             
             for method in rule.methods:
@@ -64,6 +68,7 @@ def create_app(config_name=None):
                     continue
                 
                 key = f"{method}:{full_path}"
+                
                 if key not in _api_registry:
                     _api_registry[key] = {
                         'path': full_path,

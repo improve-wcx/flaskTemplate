@@ -4,58 +4,55 @@
 
 {% block content %}
 <div class="static-demo">
-    <h1>静态资源演示</h1>
-    <p class="lead">展示项目中各种静态资源的使用</p>
-
+    <h1>Static Resource Demo</h1>
+    <p class="lead">Showcasing various static resources in the project</p>
+    
     <div class="demo-section">
-        <h2>🖼️ 图片资源</h2>
+        <h2>Image Resources</h2>
         <div class="image-gallery">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" 
-                 alt="Logo" 
-                 class="demo-image"
-                 onerror="this.src='https://via.placeholder.com/150?text=Logo'">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Logo" class="demo-image">
         </div>
     </div>
-
+    
     <div class="demo-section">
-        <h2>🎵 音频资源</h2>
+        <h2>Audio Resources</h2>
         <div class="audio-player">
             <audio controls class="demo-audio">
                 <source src="{{ url_for('static', filename='audio/sample.wav') }}" type="audio/wav">
-                您的浏览器不支持音频元素。
+                Your browser does not support the audio element.
             </audio>
         </div>
-        <p class="help-text">如果音频文件不存在，将显示默认提示</p>
+        <p class="help-text">If audio file is not available, default message will be shown</p>
     </div>
-
+    
     <div class="demo-section">
-        <h2>📄 CSS 样式</h2>
+        <h2>CSS Styles</h2>
         <div class="style-showcase">
-            <button class="btn btn-primary">主要按钮</button>
-            <button class="btn btn-secondary">次要按钮</button>
-            <div class="alert alert-info">这是一个信息提示框</div>
-            <div class="alert alert-success">这是一个成功提示框</div>
+            <button class="btn btn-primary">Primary Button</button>
+            <button class="btn btn-secondary">Secondary Button</button>
+            <div class="alert alert-info">This is an info alert</div>
+            <div class="alert alert-success">This is a success alert</div>
         </div>
     </div>
-
+    
     <div class="demo-section">
-        <h2>⚡ JavaScript 功能</h2>
-        <button id="testButton" class="btn btn-primary">点击测试 JS</button>
+        <h2>JavaScript Features</h2>
+        <button id="testButton" class="btn btn-primary">Click to Test JS</button>
         <div id="messageArea" class="mt-3"></div>
     </div>
-
+    
     <div class="demo-section">
-        <h2>📁 静态文件目录结构</h2>
+        <h2>Static File Directory Structure</h2>
         <pre class="file-tree">
 app/static/
 ├── css/
-│   └── main.css          # 主样式文件
+│   └── main.css
 ├── js/
-│   └── main.js           # 主 JavaScript 文件
+│   └── main.js
 ├── images/
-│   └── logo.png          # Logo 图片
+│   └── logo.svg
 └── audio/
-    └── sample.wav        # 示例音频
+    └── sample.wav (to be added)
         </pre>
     </div>
 </div>
@@ -63,14 +60,9 @@ app/static/
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const testButton = document.getElementById('testButton');
-    const messageArea = document.getElementById('messageArea');
-    
-    testButton.addEventListener('click', function() {
-        showMessage('JavaScript 功能正常工作！', 'success');
-        messageArea.innerHTML = '<p class="text-success">按钮点击成功！</p>';
+    document.getElementById('testButton').addEventListener('click', function() {
+        document.getElementById('messageArea').innerHTML = 
+            '<div class="alert alert-success">✅ JavaScript 工作正常！</div>';
     });
-});
 </script>
 {% endblock %}

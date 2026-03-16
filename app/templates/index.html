@@ -18,17 +18,18 @@
         </div>
         <div class="feature-card">
             <h3>📊 完整测试</h3>
-            <p>48+ 单元测试覆盖</p>
+            <p>61+ 单元测试覆盖</p>
         </div>
         <div class="feature-card">
             <h3>🌍 跨平台</h3>
             <p>支持 Windows/Linux/macOS</p>
         </div>
     </div>
-
+    
     <div class="cta-section">
         <a href="{{ url_for('api.list_apis') }}" class="btn btn-primary">查看 API 列表</a>
-        <a href="{{ url_for('demo_protobuf.hello_get') }}" class="btn btn-secondary">Protobuf 演示</a>
+        <a href="{{ url_for('main.demo') }}" class="btn btn-secondary">查看演示</a>
+        <a href="{{ url_for('demo_protobuf.hello_get') }}" class="btn btn-outline">Protobuf 演示</a>
     </div>
 </div>
 
@@ -40,6 +41,7 @@
         <li>✅ 结构化日志 - JSON 格式日志输出</li>
         <li>✅ 动态 API 注册 - 自动收集和分类 API 端点</li>
         <li>✅ Protocol Buffers - 支持 protobuf 数据序列化</li>
+        <li>✅ 静态资源管理 - 完善的模板和静态文件支持</li>
     </ul>
 </div>
 {% endblock %}

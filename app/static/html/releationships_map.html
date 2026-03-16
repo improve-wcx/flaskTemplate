@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>架构图管理 (强化方向版)</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { font-family: "Segoe UI", sans-serif; margin: 0; display: flex; background: #1a1a1a; color: #eee; }
+        #sidebar { width: 320px; background: #252526; padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.5); z-index: 10; height: 100vh; display: flex; flex-direction: column; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 12px; color: #888; }
+        input { width: 100%; padding: 8px; background: #333; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: #007acc; }
+        button { width: 100%; padding: 10px; margin-top: 10px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; }
+        .btn-save { background: #0e639c; color: white; }
+        .btn-del { background: #d9534f; color: white; }
+        .btn-io { background: #444; color: white; margin-top: 5px; }
+        
+        #canvas-container { flex-grow: 1; position: relative; overflow: hidden; }
+        svg { width: 100%; height: 100%; }
+        .node-rect { stroke: #fff; stroke-width: 1px; rx: 4; ry: 4; cursor: grab; }
+        .node-label { font-size: 12px; fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+        /* 强化连线样式 */
+        .link { stroke-opacity: 0.8; stroke-width: 2.5px; fill: none; transition: stroke-opacity 0.2s; }
+        .link:hover { stroke-opacity: 1; stroke-width: 4px; }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <h3 style="margin-top:0">组件编辑器</h3>
+    <div class="form-group">
+        <label>组件名称 (Name)</label>
+        <input type="text" id="nodeName" placeholder="输入组件名">
+    </div>
+    <div class="form-group">
+        <label>下游组件 (逗号隔开)</label>
+        <input type="text" id="nodeRel" placeholder="A, B, C">
+    </div>
+    <button class="btn-save" onclick="saveNode()">保存数据</button>
+    <button class="btn-del" onclick="deleteNode()">删除节点</button>
+    
+    <div style="margin-top: auto; padding-bottom: 20px;">
+        <button class="btn-io" onclick="exportCleanJSON()">导出 JSON</button>
+        <button class="btn-io" onclick="document.getElementById('fileInput').click()">导入 JSON</button>
+        <input type="file" id="fileInput" style="display:none" onchange="importJSON(this)">
+    </div>
+</div>
+
+<div id="canvas-container">
+    <svg id="chart"></svg>
+</div>
+
+<script>
+    let rawData = [
+        { "name": "BrowserMain", "relationships": ["NetworkService", "StoragePartition"] },
+        { "name": "NetworkService", "relationships": ["MojoIPC"] },
+        { "name": "StoragePartition", "relationships": ["SQLiteCookieStore"] },
+        { "name": "MojoIPC", "relationships": ["BrowserMain"] },
+        { "name": "SQLiteCookieStore", "relationships": [] }
+    ];
+
+    const svg = d3.select("#chart");
+    const colorScale = d3.scaleOrdinal(d3.schemeTableau10);
+    const linkGroup = svg.append("g");
+    const nodeGroup = svg.append("g");
+
+    // 配置力导向仿真
+    const simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(d => d.name).distance(220))
+        .force("charge", d3.forceManyBody().strength(-2000))
+        .force("x", d3.forceX())
+        .force("y", d3.forceY());
+
+    // 定义增强型箭头
+    svg.append("defs").append("marker")
+        .attr("id", "arrow")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 8) // 箭头位置微调
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("fill", "#bbb")
+        .attr("d", "M0,-5L10,0L0,5");
+
+    function updateGraph() {
+        const width = window.innerWidth - 320;
+        const height = window.innerHeight;
+        svg.attr("width", width).attr("height", height);
+        simulation.force("center", d3.forceCenter(width / 2, height / 2));
+
+        const links = [];
+        rawData.forEach(src => {
+            src.relationships.forEach(targetName => {
+                if (rawData.find(n => n.name === targetName)) {
+                    links.push({ source: src.name, target: targetName });
+                }
+            });
+        });
+
+        // 连线渲染
+        const linkSelection = linkGroup.selectAll(".link").data(links, d => d.source.name + "-" + d.target.name);
+        linkSelection.exit().remove();
+        const linkCombined = linkSelection.enter().append("path")
+            .attr("class", "link")
+            .attr("marker-end", "url(#arrow)")
+            .merge(linkSelection)
+            .attr("stroke", d => colorScale(d.target.name || d.target));
+
+        // 节点渲染
+        const nodeSelection = nodeGroup.selectAll("g").data(rawData, d => d.name);
+        nodeSelection.exit().remove();
+
+        const nodeEnter = nodeSelection.enter().append("g")
+            .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
+            .on("click", (e, d) => {
+                document.getElementById('nodeName').value = d.name;
+                document.getElementById('nodeRel').value = d.relationships.join(', ');
+            });
+
+        nodeEnter.append("rect").attr("class", "node-rect");
+        nodeEnter.append("text").attr("class", "node-label");
+
+        const nodeCombined = nodeEnter.merge(nodeSelection);
+        
+        nodeCombined.each(function(d) {
+            const label = d3.select(this).select("text").text(d.name);
+            const textWidth = d.name.length * 8 + 30;
+            const textHeight = 34;
+
+            d.width = textWidth;  // 将宽高存入数据对象供坐标计算使用
+            d.height = textHeight;
+
+            d3.select(this).select("rect")
+                .attr("width", textWidth)
+                .attr("height", textHeight)
+                .attr("x", -textWidth / 2)
+                .attr("y", -textHeight / 2)
+                .attr("fill", colorScale(d.name));
+        });
+
+        simulation.nodes(rawData);
+        simulation.force("link").links(links);
+        simulation.alpha(1).restart();
+
+        // 核心更新逻辑：计算线与矩形边缘的交点
+        simulation.on("tick", () => {
+            linkCombined.attr("d", d => {
+                const source = d.source;
+                const target = d.target;
+
+                // 简单的边缘交点逻辑
+                const dx = target.x - source.x;
+                const dy = target.y - source.y;
+                const angle = Math.atan2(dy, dx);
+
+                // 计算目标矩形的半宽和半高
+                const halfW = target.width / 2 + 2; // 加少量偏移让箭头更清晰
+                const halfH = target.height / 2 + 2;
+
+                // 根据角度确定连线触碰的是哪一侧边缘
+                let offsetX = 0, offsetY = 0;
+                if (Math.abs(dy / dx) < halfH / halfW) {
+                    offsetX = (dx > 0 ? -halfW : halfW);
+                    offsetY = offsetX * Math.tan(angle);
+                } else {
+                    offsetY = (dy > 0 ? -halfH : halfH);
+                    offsetX = offsetY / Math.tan(angle);
+                }
+
+                const targetX = target.x + offsetX;
+                const targetY = target.y + offsetY;
+
+                return `M${source.x},${source.y} L${targetX},${targetY}`;
+            });
+            nodeCombined.attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+    }
+
+    // --- 数据持久化 & CRUD (保持之前逻辑) ---
+    function exportCleanJSON() {
+        const cleanData = rawData.map(n => ({ name: n.name, relationships: [...n.relationships] }));
+        const blob = new Blob([JSON.stringify(cleanData, null, 2)], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'clean_arch_model.json';
+        a.click();
+    }
+
+    function importJSON(input) {
+        const reader = new FileReader();
+        reader.onload = (e) => { rawData = JSON.parse(e.target.result); updateGraph(); };
+        reader.readAsText(input.files[0]);
+    }
+
+    function saveNode() {
+        const name = document.getElementById('nodeName').value.trim();
+        const rels = document.getElementById('nodeRel').value.split(',').map(s => s.trim()).filter(s => s !== "");
+        if (!name) return;
+        const t = rawData.find(d => d.name === name);
+        if (t) t.relationships = rels;
+        else rawData.push({ name, relationships: rels });
+        updateGraph();
+    }
+
+    function deleteNode() {
+        const name = document.getElementById('nodeName').value.trim();
+        rawData = rawData.filter(d => d.name !== name);
+        rawData.forEach(d => d.relationships = d.relationships.filter(r => r !== name));
+        updateGraph();
+    }
+
+    function dragstarted(event, d) { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; }
+    function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
+    function dragended(event, d) { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }
+
+    updateGraph();
+    window.onresize = updateGraph;
+</script>
+</body>
+</html>

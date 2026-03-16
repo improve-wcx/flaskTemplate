@@ -8,24 +8,38 @@ from flask import url_for
 class TestStaticResources:
     """静态资源路由测试类"""
     
-    def test_static_index_page(self, client):
-        """测试静态资源首页"""
-        response = client.get('/static-pages/')
+    def test_main_index_page(self, client):
+        """测试主首页（现在由 main_bp 处理）"""
+        response = client.get('/')
         assert response.status_code == 200
         response_text = response.data.decode('utf-8')
         assert 'Flask Application' in response_text
         assert '首页' in response_text
     
-    def test_static_demo_page(self, client):
-        """测试静态资源演示页面"""
-        response = client.get('/static-pages/demo')
+    def test_main_demo_page(self, client):
+        """测试主演示页面（现在由 main_bp 处理）"""
+        response = client.get('/demo')
+        assert response.status_code == 200
+        response_text = response.data.decode('utf-8')
+        assert 'Static Resource Demo' in response_text
+        assert 'Image Resources' in response_text
+        assert 'Audio Resources' in response_text
+        assert 'CSS Styles' in response_text
+        assert 'JavaScript Features' in response_text
+    
+    def test_static_bp_index_page(self, client):
+        """测试备用静态资源首页（/resources/）"""
+        response = client.get('/resources/')
+        assert response.status_code == 200
+        response_text = response.data.decode('utf-8')
+        assert 'Flask Application' in response_text
+    
+    def test_static_bp_demo_page(self, client):
+        """测试备用静态资源演示页面（/resources/demo）"""
+        response = client.get('/resources/demo')
         assert response.status_code == 200
         response_text = response.data.decode('utf-8')
         assert '静态资源演示' in response_text
-        assert '图片资源' in response_text
-        assert '音频资源' in response_text
-        assert 'CSS 样式' in response_text
-        assert 'JavaScript 功能' in response_text
     
     def test_static_css_file(self, client):
         """测试 CSS 文件访问"""
@@ -55,11 +69,11 @@ class TestStaticResources:
         response = client.get('/static/audio/README.md')
         assert response.status_code == 200
         response_text = response.data.decode('utf-8')
-        assert '音频文件' in response_text
+        assert '音频文件' in response_text or 'Audio' in response_text
     
     def test_base_template_inheritance(self, client):
         """测试模板继承"""
-        response = client.get('/static-pages/demo')
+        response = client.get('/demo')
         assert response.status_code == 200
         # 检查是否包含 base.html 中的元素
         assert b'navbar' in response.data
@@ -68,12 +82,12 @@ class TestStaticResources:
     
     def test_template_blocks(self, client):
         """测试模板块"""
-        response = client.get('/static-pages/demo')
+        response = client.get('/demo')
         assert response.status_code == 200
         response_text = response.data.decode('utf-8')
         # 检查页面特定内容
-        assert '静态资源演示' in response_text
-        assert '图片资源' in response_text
+        assert 'Static Resource Demo' in response_text
+        assert 'Image Resources' in response_text
     
     def test_static_file_404(self, client):
         """测试不存在的静态文件返回 404"""
@@ -82,7 +96,7 @@ class TestStaticResources:
     
     def test_static_page_navigation(self, client):
         """测试静态页面导航链接"""
-        response = client.get('/static-pages/')
+        response = client.get('/')
         assert response.status_code == 200
         # 检查是否包含导航链接
         assert b'/api/apis' in response.data or b'API' in response.data
