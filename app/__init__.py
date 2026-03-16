@@ -81,6 +81,7 @@ def create_app(config_name=None):
     from app.routes.main import main_bp
     from app.routes.api import api_bp
     from app.routes.demo_protobuf import demo_protobuf_bp
+    from app.routes.static_resources import static_bp
     # from app.routes.admin import admin_bp  # Uncomment when needed
     
     # 定义蓝图分类映射
@@ -88,6 +89,7 @@ def create_app(config_name=None):
         'main': '系统',
         'api': '系统',
         'demo_protobuf': 'Protobuf 演示',
+        'static_bp': '静态资源',
         'admin': '管理'
     }
     
@@ -98,6 +100,8 @@ def create_app(config_name=None):
     print(f"[INFO] Registered blueprint: api_bp")
     app.register_blueprint(demo_protobuf_bp)
     print(f"[INFO] Registered blueprint: demo_protobuf_bp")
+    app.register_blueprint(static_bp)
+    print(f"[INFO] Registered blueprint: static_bp")
     # app.register_blueprint(admin_bp)  # Uncomment when needed
     
     # Auto-collect blueprint routes
@@ -105,6 +109,7 @@ def create_app(config_name=None):
     _collect_routes(main_bp, blueprint_categories['main'])
     _collect_routes(api_bp, blueprint_categories['api'])
     _collect_routes(demo_protobuf_bp, blueprint_categories['demo_protobuf'])
+    _collect_routes(static_bp, blueprint_categories['static_bp'])
     # _collect_routes(admin_bp, blueprint_categories['admin'])  # Uncomment when needed
     
     print(f"[INFO] Route collection completed")

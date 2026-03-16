@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}静态资源演示 - Flask Application{% endblock %}
+
+{% block content %}
+<div class="static-demo">
+    <h1>静态资源演示</h1>
+    <p class="lead">展示项目中各种静态资源的使用</p>
+
+    <div class="demo-section">
+        <h2>🖼️ 图片资源</h2>
+        <div class="image-gallery">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" 
+                 alt="Logo" 
+                 class="demo-image"
+                 onerror="this.src='https://via.placeholder.com/150?text=Logo'">
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>🎵 音频资源</h2>
+        <div class="audio-player">
+            <audio controls class="demo-audio">
+                <source src="{{ url_for('static', filename='audio/sample.wav') }}" type="audio/wav">
+                您的浏览器不支持音频元素。
+            </audio>
+        </div>
+        <p class="help-text">如果音频文件不存在，将显示默认提示</p>
+    </div>
+
+    <div class="demo-section">
+        <h2>📄 CSS 样式</h2>
+        <div class="style-showcase">
+            <button class="btn btn-primary">主要按钮</button>
+            <button class="btn btn-secondary">次要按钮</button>
+            <div class="alert alert-info">这是一个信息提示框</div>
+            <div class="alert alert-success">这是一个成功提示框</div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>⚡ JavaScript 功能</h2>
+        <button id="testButton" class="btn btn-primary">点击测试 JS</button>
+        <div id="messageArea" class="mt-3"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>📁 静态文件目录结构</h2>
+        <pre class="file-tree">
+app/static/
+├── css/
+│   └── main.css          # 主样式文件
+├── js/
+│   └── main.js           # 主 JavaScript 文件
+├── images/
+│   └── logo.png          # Logo 图片
+└── audio/
+    └── sample.wav        # 示例音频
+        </pre>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const testButton = document.getElementById('testButton');
+    const messageArea = document.getElementById('messageArea');
+    
+    testButton.addEventListener('click', function() {
+        showMessage('JavaScript 功能正常工作！', 'success');
+        messageArea.innerHTML = '<p class="text-success">按钮点击成功！</p>';
+    });
+});
+</script>
+{% endblock %}

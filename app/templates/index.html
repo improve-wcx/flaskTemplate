@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - Flask Application{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <h1>欢迎使用 Flask Application</h1>
+    <p class="lead">一个结构化的 Flask 项目模板，支持模块化开发和多环境配置。</p>
+    
+    <div class="features">
+        <div class="feature-card">
+            <h3>🚀 快速开发</h3>
+            <p>模块化架构，易于扩展和维护</p>
+        </div>
+        <div class="feature-card">
+            <h3>🔧 灵活配置</h3>
+            <p>JSON 配置，支持多环境</p>
+        </div>
+        <div class="feature-card">
+            <h3>📊 完整测试</h3>
+            <p>48+ 单元测试覆盖</p>
+        </div>
+        <div class="feature-card">
+            <h3>🌍 跨平台</h3>
+            <p>支持 Windows/Linux/macOS</p>
+        </div>
+    </div>
+
+    <div class="cta-section">
+        <a href="{{ url_for('api.list_apis') }}" class="btn btn-primary">查看 API 列表</a>
+        <a href="{{ url_for('demo_protobuf.hello_get') }}" class="btn btn-secondary">Protobuf 演示</a>
+    </div>
+</div>
+
+<div class="info-section">
+    <h2>项目特点</h2>
+    <ul class="feature-list">
+        <li>✅ JSON 配置 - 统一管理所有环境配置</li>
+        <li>✅ 模块化路由 - 按功能拆分路由模块</li>
+        <li>✅ 结构化日志 - JSON 格式日志输出</li>
+        <li>✅ 动态 API 注册 - 自动收集和分类 API 端点</li>
+        <li>✅ Protocol Buffers - 支持 protobuf 数据序列化</li>
+    </ul>
+</div>
+{% endblock %}
