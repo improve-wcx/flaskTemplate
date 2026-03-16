@@ -23,7 +23,14 @@ source env/bin/activate  # Linux/Mac
 # 或 env\Scripts\activate  # Windows
 
 # 3. 安装依赖
-pip install -r requirements-dev.txt
+# Linux/macOS:
+pip install -r requirements/linux.txt
+
+# Windows:
+# pip install -r requirements/windows.txt
+
+# 或使用自动检测脚本:
+# python scripts/install_deps.py
 
 # 4. (可选) 安装 protoc 编译器
 # Ubuntu/Debian: sudo apt-get install protobuf-compiler

@@ -1,0 +1,19 @@
+# Windows 特定依赖
+# 安装命令：pip install -r requirements/windows.txt
+
+# 基础依赖
+-r base.txt
+
+# Windows 特定依赖
+# colorama 用于 Windows 终端彩色输出（Flask 开发服务器需要）
+colorama>=0.4.6
+
+# 测试依赖
+-r test.txt
+
+# 开发依赖
+-r dev.txt
+
+# 生产服务器（Windows 推荐）
+# waitress 是 Windows 上推荐的 WSGI 服务器
+waitress>=3.0.0

@@ -59,11 +59,18 @@ source env/bin/activate  # Linux/Mac
 ### 3. 安装依赖
 
 ```bash
-# 安装开发依赖（包含测试工具）
-pip install -r requirements-dev.txt
+# Linux/macOS - 安装开发依赖
+pip install -r requirements/linux.txt
 
-# 或仅安装运行依赖
-pip install -r requirements.txt
+# Windows - 安装开发依赖
+# pip install -r requirements/windows.txt
+
+# 或仅安装运行依赖（生产环境）
+# Linux:
+# pip install -r requirements/base.txt && pip install gunicorn
+
+# Windows:
+# pip install -r requirements/base.txt && pip install waitress
 ```
 
 ### 4. 编译 Protobuf（如使用）
@@ -177,13 +184,19 @@ server {
 #### 1. 创建 Dockerfile
 
 ```dockerfile
-FROM python:3.12-slim
+FROM python:3.9-slim
 
 WORKDIR /app
 
-# 安装依赖
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# 根据平台选择依赖文件
+# Linux 部署
+COPY requirements/linux.txt .
+RUN pip install --no-cache-dir -r linux.txt
+
+# Windows 部署（使用基础镜像）
+# COPY requirements/base.txt .
+# RUN pip install --no-cache-dir -r base.txt
+# RUN pip install waitress
 
 # 复制代码
 COPY . .
@@ -393,9 +406,16 @@ python -c "from app.proto import demo_pb2"
 # 重新创建虚拟环境
 deactivate
 rm -rf env
+
+# Linux/macOS
 python3 -m venv env
 source env/bin/activate
-pip install -r requirements-dev.txt
+pip install -r requirements/linux.txt
+
+# Windows
+# py -m venv env
+# .\env\Scripts\Activate.ps1
+# pip install -r requirements/windows.txt
 ```
 
 ### 问题：测试失败

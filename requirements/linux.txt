@@ -1,0 +1,17 @@
+# Linux/Ubuntu 特定依赖
+# 安装命令：pip install -r requirements/linux.txt
+
+# 基础依赖
+-r base.txt
+
+# Linux 特定依赖（如果需要）
+# 例如：某些系统级依赖的 Python 包
+
+# 测试依赖
+-r test.txt
+
+# 开发依赖
+-r dev.txt
+
+# 生产服务器（Linux 推荐）
+gunicorn>=21.0.0

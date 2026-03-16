@@ -33,7 +33,7 @@ protobuf-regenerate: protobuf-clean protobuf
 # 安装 protobuf 依赖
 protobuf-install-deps:
 	@echo "安装 Protocol Buffers 依赖..."
-	@pip install -r requirements.txt
+	@pip install -r requirements/linux.txt
 	@echo "依赖安装完成!"
 
 # 检查 protoc 是否安装

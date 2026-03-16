@@ -41,7 +41,11 @@ projectTemplate/
 ### 1. 安装依赖
 
 ```bash
-pip install -r requirements.txt
+# Linux/macOS
+pip install -r requirements/linux.txt
+
+# Windows
+# pip install -r requirements/windows.txt
 ```
 
 ### 2. 查看示例接口

@@ -1,0 +1,14 @@
+# 生产环境依赖（所有平台通用）
+# 安装命令：pip install -r requirements/prod.txt
+
+# 基础依赖
+-r base.txt
+
+# 生产服务器（根据平台选择）
+# Linux: 使用 gunicorn
+# Windows: 使用 waitress
+# 具体安装请参照对应平台的 requirements 文件
+
+# 生产环境工具
+# gunicorn  # Linux 使用
+# waitress  # Windows 使用
