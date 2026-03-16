@@ -36,16 +36,13 @@ python scripts/install_deps.py
 py -m venv env
 .\env\Scripts\Activate.ps1
 
-# 2. 安装依赖
+# 2. 安装依赖（完整开发环境）
 pip install -r requirements/windows.txt
 
-# 3. 生成 Protobuf 代码
-python scripts/generate_protobuf_win.py
-
-# 4. 运行测试
+# 3. 运行测试
 pytest tests/ -v
 
-# 5. 启动服务
+# 4. 启动服务
 python run.py
 ```
 
@@ -55,16 +52,13 @@ python run.py
 python3 -m venv env
 source env/bin/activate
 
-# 2. 安装依赖
+# 2. 安装依赖（完整开发环境）
 pip install -r requirements/linux.txt
 
-# 3. 生成 Protobuf 代码
-python scripts/generate_protobuf.py
-
-# 4. 运行测试
+# 3. 运行测试
 pytest tests/ -v
 
-# 5. 启动服务
+# 4. 启动服务
 python run.py
 ```
 
@@ -72,7 +66,7 @@ python run.py
 
 ### 开发服务器
 
-启动开发服务器：`http://127.0.0.0:5000`
+启动开发服务器：`http://127.0.0.1:5000`
 
 ```bash
 python run.py
@@ -82,11 +76,14 @@ python run.py
 
 | 接口 | 方法 | 说明 |
 |------|------|------|
-| `GET /` | - | 首页 |
-| `GET /api/health` | - | 健康检查 |
-| `GET /api/apis` | - | API 列表 |
-| `GET /api/v1/demo/hello` | - | Protobuf 演示 |
-| `POST /api/v1/text` | 富文本提交 | 文本共享系统 |
+| `GET /` | GET | 首页，展示功能导航 |
+| `GET /api/health` | GET | 健康检查，返回服务状态 |
+| `GET /api/version` | GET | 返回当前 API 版本 |
+| `GET /api/apis` | GET | 列出已注册的所有 API（通过 `register_api`） |
+| `GET /relationship-map` | GET | 关系图页面（静态 HTML） |
+| `POST /api/v1/submission` | POST | 提交文本内容（富文本共享） |
+| `POST /api/v1/submissions` | POST | 分页获取已提交的文本列表 |
+| `GET /api/v1/text_submission` | GET | 渲染文本提交页面 |
 
 ### 命令行客户端
 
@@ -97,37 +94,13 @@ python cli.py --help
 # 健康检查
 python cli.py health
 
-# API 列表
+# 查看已注册的 API 列表
 python cli.py apis
 
 # 文本提交示例
 python cli.py text-submit --content "Hello World"
 ```
-
-## 📚 文档
-
-- **[开发者指南](doc/getting-started.md)** - 新功能开发指南
-- **[部署文档](doc/deployment/README.md)** - 环境部署说明
-- **[API 文档](doc/api/README.md)** - 接口使用说明
-- **[测试指南](doc/testing/README.md)** - 测试编写规范
-
-## 🛠️ 开发工具
-
-### 代码质量
-
-```bash
-# 安装开发依赖
-pip install -r requirements/dev.txt
-
-# 代码格式化
-black app/ tests/
-
-# 导入排序
-isort app/ tests/
-
-# 代码检查
-flake8 app/ tests/
-
+<!-- The Protocol Buffers demo has been removed from the project. -->
 # 类型检查
 mypy app/
 ```
