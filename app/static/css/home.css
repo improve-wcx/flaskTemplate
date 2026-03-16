@@ -1,0 +1,196 @@
+/**
+ * 首页样式 - 简洁列表布局
+ * 设计风格：极简、清晰、易用
+ */
+
+:root {
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --background-secondary: #ffffff;
+    --background-tertiary: #f8f9fa;
+    --border-color: #e0e0e0;
+    --primary-color: #007bff;
+}
+
+/* 首页容器 */
+.home-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* 首页头部 */
+.home-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.home-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.home-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* 功能列表容器 */
+.function-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* 功能项 */
+.function-item {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    background: var(--background-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.function-item:hover {
+    background: var(--background-tertiary);
+    border-color: var(--primary-color);
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.function-item:active {
+    transform: translateX(4px) scale(0.98);
+}
+
+/* 功能图标 */
+.function-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.function-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* 功能内容 */
+.function-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.function-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+}
+
+.function-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* 功能箭头 */
+.function-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.function-arrow svg {
+    width: 20px;
+    height: 20px;
+}
+
+.function-item:hover .function-arrow {
+    color: var(--primary-color);
+}
+
+/* 首页底部 */
+.home-footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.home-footer p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.function-count {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .home-container {
+        padding: 1rem 0.75rem;
+    }
+
+    .home-title {
+        font-size: 1.5rem;
+    }
+
+    .home-subtitle {
+        font-size: 0.875rem;
+    }
+
+    .function-item {
+        padding: 1rem;
+    }
+
+    .function-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .function-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .function-title {
+        font-size: 1rem;
+    }
+
+    .function-desc {
+        font-size: 0.8125rem;
+    }
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-primary: #e0e0e0;
+        --text-secondary: #a0a0a0;
+        --background-secondary: #1e1e1e;
+        --background-tertiary: #2a2a2a;
+        --border-color: #333333;
+    }
+}
