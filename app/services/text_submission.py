@@ -9,12 +9,16 @@ from datetime import datetime
 from typing import List, Dict, Optional, Any
 from pathlib import Path
 import threading
+import logging
+
+# Configure logger
+logger = logging.getLogger(__name__)
 
 # Thread lock for file operations
 _lock = threading.Lock()
 
 # Data file path
-DATA_DIR = Path(__file__).parent.parent / "data" / "submissions"
+DATA_DIR = Path(__file__).parent.parent.parent / "data" / "submissions"
 DATA_FILE = DATA_DIR / "submissions.jsonl"
 
 # Ensure data directory exists
@@ -49,9 +53,9 @@ class SubmissionStorage:
                                 except json.JSONDecodeError:
                                     # Skip invalid lines
                                     continue
-                    print(f"[INFO] Loaded {len(self._data)} submissions from {DATA_FILE}")
+                    logger.info(f"Loaded {len(self._data)} submissions from {DATA_FILE}")
                 except Exception as e:
-                    print(f"[ERROR] Failed to load submissions: {e}")
+                    logger.error(f"Failed to load submissions: {e}")
                     self._data = []
             else:
                 self._data = []
@@ -65,9 +69,9 @@ class SubmissionStorage:
                 with open(DATA_FILE, 'w', encoding='utf-8') as f:
                     for item in self._data:
                         f.write(json.dumps(item, ensure_ascii=False) + '\n')
-                print(f"[INFO] Saved {len(self._data)} submissions to {DATA_FILE}")
+                logger.info(f"Saved {len(self._data)} submissions to {DATA_FILE}")
             except Exception as e:
-                print(f"[ERROR] Failed to save submissions: {e}")
+                logger.error(f"Failed to save submissions: {e}")
                 raise
     
     def _append_submission(self, submission: Dict[str, Any]):
@@ -76,9 +80,9 @@ class SubmissionStorage:
             try:
                 with open(DATA_FILE, 'a', encoding='utf-8') as f:
                     f.write(json.dumps(submission, ensure_ascii=False) + '\n')
-                print(f"[INFO] Appended submission {submission['id']}")
+                logger.info(f"Appended submission {submission['id']}")
             except Exception as e:
-                print(f"[ERROR] Failed to append submission: {e}")
+                logger.error(f"Failed to append submission: {e}")
                 raise
     
     def add_submission(self, content: str, ip_address: str = None, user_agent: str = None) -> Dict[str, Any]:
@@ -195,7 +199,7 @@ class SubmissionStorage:
             self._loaded = False
             if DATA_FILE.exists():
                 DATA_FILE.unlink()
-            print(f"[INFO] Cleared all submissions")
+            logger.info("Cleared all submissions")
 
 
 # Global storage instance

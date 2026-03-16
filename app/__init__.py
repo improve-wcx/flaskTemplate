@@ -41,11 +41,12 @@ def create_app(config_name=None):
         config_name = os.environ.get('FLASK_ENV', 'development')
     
     # Log application initialization
-    print(f"[INFO] Initializing Flask application with config: {config_name}")
+    logger = logging.getLogger(__name__)
+    logger.info(f"Initializing Flask application with config: {config_name}")
     
     # Load configuration from JSON
     config = get_config(config_name)
-    print(f"[INFO] Configuration loaded successfully")
+    logger.info("Configuration loaded successfully")
     
     # Configure logger paths BEFORE creating the logger
     logging_config = config.get('logging', {})
@@ -58,20 +59,20 @@ def create_app(config_name=None):
         app_log_file=app_log_file,
         trace_log_file=trace_log_file
     )
-    print(f"[INFO] Logger paths configured: log_dir={log_dir}")
+    logger.info(f"Logger paths configured: log_dir={log_dir}")
     
     # Setup logger
     logger = setup_logger(name='app', level=getattr(logging, logging_config.get('level', 'DEBUG')))
     
     # Create Flask app
     app = Flask(__name__)
-    print(f"[INFO] Flask app instance created")
+    logger.info("Flask app instance created")
     
     # Apply configuration
     app_config = config.get('app', {})
     app.debug = app_config.get('debug', False)
     app.testing = app_config.get('testing', False)
-    print(f"[INFO] Configuration applied: debug={app.debug}, testing={app.testing}")
+    logger.info(f"Configuration applied: debug={app.debug}, testing={app.testing}")
     
     # Security settings
     security = config.get('security', {})
@@ -79,7 +80,7 @@ def create_app(config_name=None):
     
     # JSON configuration - support Chinese characters
     app.json.ensure_ascii = False
-    print(f"[INFO] JSON encoding configured for Chinese support")
+    logger.info("JSON encoding configured for Chinese support")
     
     # 定义路由收集函数
     def _collect_routes(blueprint, category: str):
@@ -117,23 +118,23 @@ def create_app(config_name=None):
         count = len([k for k in _api_registry if _api_registry[k].get('module') == blueprint.name])
         app.logger.info(f"Collected {count} routes from blueprint {blueprint.name} (category: {category})")
     
-    print(f"[INFO] Registering blueprints...")
+    logger.info("Registering blueprints...")
     app.register_blueprint(main_bp)
-    print(f"[INFO] Registered blueprint: main_bp")
+    logger.info("Registered blueprint: main_bp")
     app.register_blueprint(api_bp)
-    print(f"[INFO] Registered blueprint: api_bp")
+    logger.info("Registered blueprint: api_bp")
     app.register_blueprint(demo_protobuf_bp)
-    print(f"[INFO] Registered blueprint: demo_protobuf_bp")
+    logger.info("Registered blueprint: demo_protobuf_bp")
     app.register_blueprint(static_bp)
-    print(f"[INFO] Registered blueprint: static_bp")
+    logger.info("Registered blueprint: static_bp")
     app.register_blueprint(rel_map_bp)
-    print(f"[INFO] Registered blueprint: rel_map_bp")
+    logger.info("Registered blueprint: rel_map_bp")
     app.register_blueprint(text_submission_bp)
-    print(f"[INFO] Registered blueprint: text_submission_bp")
+    logger.info("Registered blueprint: text_submission_bp")
     # app.register_blueprint(admin_bp)  # Uncomment when needed
     
     # Auto-collect blueprint routes
-    print(f"[INFO] Collecting routes from blueprints...")
+    logger.info("Collecting routes from blueprints...")
     _collect_routes(main_bp, blueprint_categories['main'])
     _collect_routes(api_bp, blueprint_categories['api'])
     _collect_routes(demo_protobuf_bp, blueprint_categories['demo_protobuf'])
@@ -142,7 +143,7 @@ def create_app(config_name=None):
     _collect_routes(text_submission_bp, blueprint_categories['text_submission'])
     # _collect_routes(admin_bp, blueprint_categories['admin'])  # Uncomment when needed
     
-    print(f"[INFO] Route collection completed")
+    logger.info("Route collection completed")
     
     # Before request hook
     @app.before_request
@@ -182,7 +183,7 @@ def create_app(config_name=None):
         
         return response
     
-    print(f"[INFO] Flask application initialized successfully")
-    print(f"[INFO] Total APIs registered: {get_registry_count()}")
+    logger.info("Flask application initialized successfully")
+    logger.info(f"Total APIs registered: {get_registry_count()}")
     
     return app
