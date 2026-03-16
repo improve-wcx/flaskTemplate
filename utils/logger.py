@@ -23,7 +23,11 @@ LOG_FILE = os.path.join(LOG_DIR, "app.log")
 LOG_TRACE_FILE = os.path.join(LOG_DIR, "trace.log")
 
 
-def configure_logger_paths(log_dir: str, app_log_file: str = "app.log", trace_log_file: str = "trace.log"):
+def configure_logger_paths(
+    log_dir: str,
+    app_log_file: str = "app.log",
+    trace_log_file: str = "trace.log"
+):
     """
     Configure logger file paths.
 
@@ -52,7 +56,8 @@ class JSONListFormatter(logging.Formatter):
     Output format (list):
     [timestamp, level, pid, tid, logger_name, message, extra]
 
-    `extra` is a dict that may include `pathname`, `lineno`, `traceback`, and `request_id` (when present).
+    `extra` is a dict that may include `pathname`, `lineno`, `traceback`,
+    and `request_id` (when present).
     """
 
     def formatTime(self, record, datefmt=None):
@@ -104,43 +109,50 @@ class ExceptionOnlyFilter(logging.Filter):
 def setup_logger(name: str = None, level: int = logging.DEBUG) -> logging.Logger:
     """
     Create and return a logger configured with JSON-list format and a trace handler.
-    
+
     - Main handlers (file + console) write structured JSON-list log entries to `app.log`.
-    - A separate rotating `trace.log` receives records that contain exception info and includes the traceback.
+    - A separate rotating `trace.log` receives records that contain exception info
+      and includes the traceback.
     """
     logger_name = name if name else __name__
     logger = logging.getLogger(logger_name)
-    
+
     # Reset handlers to ensure new configuration applies if reloaded
     if logger.handlers:
         logger.handlers.clear()
-    
+
     logger.setLevel(level)
-    
+
     # Ensure files exist so tests or other code can open them immediately.
     open(LOG_FILE, "a", encoding="utf-8").close()
     open(LOG_TRACE_FILE, "a", encoding="utf-8").close()
-    
+
     formatter = JSONListFormatter()
-    
+
     # File handler
-    file_handler = RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=5, encoding="utf-8")
+    file_handler = RotatingFileHandler(
+        LOG_FILE, maxBytes=1024 * 1024, backupCount=5, encoding="utf-8"
+    )
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
-    
+
     # Console handler
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
-    
-    # Trace handler: only records with exception info are written here, includes full traceback
-    trace_handler = RotatingFileHandler(LOG_TRACE_FILE, maxBytes=1024 * 1024, backupCount=3, encoding="utf-8")
+
+    # Trace handler: only records with exception info are written here,
+    # includes full traceback
+    trace_handler = RotatingFileHandler(
+        LOG_TRACE_FILE, maxBytes=1024 * 1024, backupCount=3, encoding="utf-8"
+    )
     trace_handler.setFormatter(formatter)
     trace_handler.addFilter(ExceptionOnlyFilter())
     logger.addHandler(trace_handler)
-    
-    print(f"[INFO] Logger setup complete: name={logger_name}, level={logging.getLevelName(level)}")
-    
+
+    print(f"[INFO] Logger setup complete: name={logger_name}, "
+          f"level={logging.getLevelName(level)}")
+
     return logger
 
 

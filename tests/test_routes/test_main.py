@@ -24,15 +24,11 @@ def test_index_page_contains_function_list(client):
     
     # Check for specific functions (using UTF-8 encoded bytes)
     assert '关系管理'.encode('utf-8') in resp.data
-    assert 'API 文档'.encode('utf-8') in resp.data
-    assert 'Protobuf 演示'.encode('utf-8') in resp.data
-    assert '演示页面'.encode('utf-8') in resp.data
-    
+    assert '文本共享'.encode('utf-8') in resp.data
+
     # Check for links
     assert b'/relationship-map' in resp.data
-    assert b'/api/apis' in resp.data
-    assert b'/api/v1/demo/hello' in resp.data
-    assert b'/demo' in resp.data
+    assert b'/text_submission' in resp.data
 
 
 def test_hello_route_returns_hello_world(client):
@@ -41,13 +37,6 @@ def test_hello_route_returns_hello_world(client):
     assert resp.status_code == 200
     assert b'Hello, World!' in resp.data
 
-
-def test_demo_page_returns_html(client):
-    """Test that the demo page returns HTML content."""
-    resp = client.get('/demo')
-    assert resp.status_code == 200
-    assert b'<!DOCTYPE html>' in resp.data
-    assert b'Static Resource Demo' in resp.data
 
 
 def test_favicon_route_returns_204(client):
@@ -72,11 +61,6 @@ def test_hello_route_logs_request(client):
     assert True
 
 
-def test_demo_route_logs_request(client):
-    """Test that the demo route logs the request properly."""
-    resp = client.get('/demo')
-    assert resp.status_code == 200
-    assert True
 
 
 def test_favicon_route_logs_debug(client):

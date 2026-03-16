@@ -9,7 +9,6 @@ from flask import Flask
 # Log application ready
 from app.api_registry import get_registry_count
 from app.routes.api import api_bp
-from app.routes.demo_protobuf import demo_protobuf_bp
 
 # 注册蓝图
 from app.routes.main import main_bp
@@ -23,7 +22,6 @@ from utils.logger import configure_logger_paths, setup_logger
 blueprint_categories = {
     "main": "系统",
     "api": "系统",
-    "demo_protobuf": "Protobuf 演示",
     "static_bp": "静态资源",
     "rel_map": "关系图",
     "admin": "管理",
@@ -136,8 +134,6 @@ def create_app(config_name=None):
     logger.info("Registered blueprint: main_bp")
     app.register_blueprint(api_bp)
     logger.info("Registered blueprint: api_bp")
-    app.register_blueprint(demo_protobuf_bp)
-    logger.info("Registered blueprint: demo_protobuf_bp")
     app.register_blueprint(static_bp)
     logger.info("Registered blueprint: static_bp")
     app.register_blueprint(rel_map_bp)
@@ -150,7 +146,7 @@ def create_app(config_name=None):
     logger.info("Collecting routes from blueprints...")
     _collect_routes(main_bp, blueprint_categories["main"])
     _collect_routes(api_bp, blueprint_categories["api"])
-    _collect_routes(demo_protobuf_bp, blueprint_categories["demo_protobuf"])
+    # demo_protobuf blueprint has been removed from the project.
     _collect_routes(static_bp, blueprint_categories["static_bp"])
     _collect_routes(rel_map_bp, blueprint_categories["rel_map"])
     _collect_routes(text_submission_bp, blueprint_categories["text_submission"])

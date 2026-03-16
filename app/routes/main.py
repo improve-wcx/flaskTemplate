@@ -25,12 +25,6 @@ def hello():
     return "Hello, World!"
 
 
-@main_bp.route("/demo")
-def demo():
-    """演示页面 - 静态资源演示"""
-    request_id = get_request_id()
-    current_app.logger.info("Handling demo route", extra={"request_id": request_id})
-    return render_template("static_demo.html")
 
 
 @main_bp.route("/favicon.ico")

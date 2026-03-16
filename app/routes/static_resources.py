@@ -15,7 +15,3 @@ def static_index():
     return render_template("index.html")
 
 
-@static_bp.route("/demo")
-def static_demo():
-    """静态资源演示页面（备用）"""
-    return render_template("static_demo.html")
