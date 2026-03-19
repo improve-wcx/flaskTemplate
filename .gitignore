@@ -7,33 +7,66 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.Python
-build/
-dist/
+*.egg
 *.egg-info/
-.eggs/
+dist/
+build/
+*.manifest
+*.spec
 
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Virtual environments
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Environments
+.env
+.venv
 env/
 venv/
 ENV/
-.venv/
 
-# Pytest
-.pytest_cache/
-
-# IDEs and editors
+# VS Code
 .vscode/
-.idea/
-*.swp
 
-# Local env files
-.env
-.env.*
+# PyCharm
+.idea/
+*.iml
 
 # macOS
 .DS_Store
+
+# Windows thumbnail cache files
+Thumbs.db
+
+# Flask specific
+instance/
+.webassets-cache
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.swo

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动物声音播放器</title>
+    <link rel="stylesheet" href="/static/css/ogg_audio.css">
+</head>
+<body>
+    <div class="player-card">
+        <header>
+            <h2>音频库浏览器</h2>
+            <p>选择一个动物音频并播放</p>
+        </header>
+
+        <main>
+            <div class="control-group">
+                <label for="audio-select">选择音频：</label>
+                <select id="audio-select">
+                    <option value="">正在加载音频列表...</option>
+                </select>
+            </div>
+
+            <div class="audio-visualizer">
+                <div id="status-text">就绪</div>
+            </div>
+
+            <div class="button-group">
+                <button id="play-btn" class="btn btn-primary">播放</button>
+                <button id="pause-btn" class="btn btn-secondary">暂停</button>
+            </div>
+
+            <audio id="main-audio"></audio>
+        </main>
+    </div>
+
+    <script src="/static/js/ogg_audio.js"></script>
+</body>
+</html>

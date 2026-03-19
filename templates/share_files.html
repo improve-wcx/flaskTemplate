@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask 共享文件管理器</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 40px 20px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        .header { padding: 20px; background: #fff; border-bottom: 1px solid #eaeaea; display: flex; justify-content: space-between; align-items: center; }
+        .breadcrumbs { font-size: 16px; font-weight: 500; }
+        .breadcrumbs a { color: #1890ff; text-decoration: none; cursor: pointer; }
+        .breadcrumbs a:hover { text-decoration: underline; }
+        .toolbar { display: flex; gap: 12px; }
+        button, .file-upload-label { padding: 8px 16px; border: none; border-radius: 4px; background: #1890ff; color: white; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+        button:hover, .file-upload-label:hover { background: #096dd9; }
+        .file-upload-label { display: inline-block; }
+        input[type="file"] { display: none; }
+        .danger-btn { background: #ff4d4f; }
+        .danger-btn:hover { background: #cf1322; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 16px 20px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+        th { background: #fafafa; font-weight: 600; color: #555; }
+        tr:hover { background: #f5f5f5; }
+        .icon { margin-right: 8px; font-size: 1.2em; vertical-align: middle; }
+        .actions { display: flex; gap: 8px; }
+        .actions button { padding: 4px 10px; font-size: 13px; }
+        .empty-state { padding: 60px; text-align: center; color: #999; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="breadcrumbs" id="breadcrumbs">
+                <a onclick="loadDirectory('')">🏠 根目录</a>
+            </div>
+            <div class="toolbar">
+                <button onclick="createFolder()">新建文件夹</button>
+                <label class="file-upload-label">
+                    上传文件
+                    <input type="file" id="fileInput" onchange="uploadFile(event)">
+                </label>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 50%;">名称</th>
+                    <th style="width: 20%;">大小</th>
+                    <th style="width: 30%;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="fileList">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // 【关键修改】这里改成了相对路径。不再需要 http://127.0.0.1:5000 了
+        const API_BASE = '/api'; 
+        let currentPath = ''; 
+
+        document.addEventListener('DOMContentLoaded', () => loadDirectory(''));
+
+        // 1. 加载目录列表 (修改此函数)
+        async function loadDirectory(path) {
+            currentPath = path;
+            renderBreadcrumbs();
+            
+            try {
+                // 【修改这里】：判断 path 是否为空，动态拼接 URL
+                const url = path ? `${API_BASE}/list/${path}` : `${API_BASE}/list`;
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('无法加载目录数据');
+                
+                const data = await response.json();
+                renderTable(data.items);
+            } catch (error) {
+                console.error(error);
+                alert('加载失败，请检查控制台网络请求或后端运行日志。');
+            }
+        }
+
+        function renderTable(items) {
+            const tbody = document.getElementById('fileList');
+            tbody.innerHTML = '';
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-state">此文件夹为空</td></tr>';
+                return;
+            }
+            if (currentPath !== '') {
+                const parentPath = currentPath.split('/').slice(0, -1).join('/');
+                tbody.innerHTML += `<tr><td colspan="3" style="cursor:pointer; color:#999;" onclick="loadDirectory('${parentPath}')"><span class="icon">↩️</span> 返回上一级</td></tr>`;
+            }
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                const itemPath = currentPath ? `${currentPath}/${item.name}` : item.name;
+                const icon = item.is_dir ? '📁' : '📄';
+                const size = item.is_dir ? '-' : formatBytes(item.size);
+                
+                let nameHtml = item.is_dir 
+                    ? `<span style="cursor:pointer; color:#1890ff; font-weight:500;" onclick="loadDirectory('${itemPath}')"><span class="icon">${icon}</span>${item.name}</span>`
+                    : `<span><span class="icon">${icon}</span>${item.name}</span>`;
+
+                let actionHtml = '';
+                if (!item.is_dir) {
+                    actionHtml += `<button onclick="downloadFile('${itemPath}')">下载</button>`;
+                }
+                actionHtml += `<button class="danger-btn" onclick="deleteItem('${itemPath}')">删除</button>`;
+
+                tr.innerHTML = `<td>${nameHtml}</td><td>${size}</td><td class="actions">${actionHtml}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderBreadcrumbs() {
+            const container = document.getElementById('breadcrumbs');
+            container.innerHTML = `<a onclick="loadDirectory('')">🏠 根目录</a>`;
+            if (currentPath) {
+                const parts = currentPath.split('/');
+                let buildPath = '';
+                parts.forEach(part => {
+                    buildPath += (buildPath === '' ? '' : '/') + part;
+                    container.innerHTML += ` <span style="color:#ccc">/</span> <a onclick="loadDirectory('${buildPath}')">${part}</a>`;
+                });
+            }
+        }
+
+        async function createFolder() {
+            const folderName = prompt('请输入新文件夹的名称：');
+            if (!folderName) return;
+            try {
+                const response = await fetch(`${API_BASE}/mkdir`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: currentPath, folder_name: folderName })
+                });
+                if (response.ok) loadDirectory(currentPath);
+                else alert((await response.json()).error || '创建失败');
+            } catch (error) { console.error('Error:', error); }
+        }
+
+        async function uploadFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const uploadUrl = currentPath ? `${API_BASE}/upload/${currentPath}` : `${API_BASE}/upload`;
+                const response = await fetch(uploadUrl, { method: 'POST', body: formData });
+                if (response.ok) loadDirectory(currentPath);
+                else alert((await response.json()).error || '上传失败');
+            } catch (error) { console.error('Error:', error); } 
+            finally { event.target.value = ''; }
+        }
+
+        function downloadFile(itemPath) {
+            window.open(`${API_BASE}/download/${itemPath}`, '_blank');
+        }
+
+        async function deleteItem(itemPath) {
+            if (!confirm(`确定要删除 "${itemPath}" 吗？此操作不可恢复！`)) return;
+            try {
+                const response = await fetch(`${API_BASE}/delete/${itemPath}`, { method: 'DELETE' });
+                if (response.ok) loadDirectory(currentPath);
+                else alert((await response.json()).error || '删除失败');
+            } catch (error) { console.error('Error:', error); }
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024, dm = decimals < 0 ? 0 : decimals, sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

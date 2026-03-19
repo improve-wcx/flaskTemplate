@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的工具箱 - 控制面板</title>    
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f4f7f9; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
+        
+        /* 卡片基础样式优化 */
+        .feature-card {
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            border: none;
+            border-radius: 12px;
+            background: #ffffff;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+            background: #fff;
+            color: inherit;
+        }
+
+        /* 针对高密度布局缩放图标和文字 */
+        .icon-box {
+            font-size: 1.8rem; /* 缩小图标以适应 6 列布局 */
+            margin-bottom: 0.5rem;
+        }
+
+        .card-title {
+            font-size: 0.95rem; /* 适当缩小标题 */
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .card-text {
+            font-size: 0.75rem; /* 缩小描述文字 */
+            line-height: 1.3;
+        }
+
+        /* 移除卡片底部按钮，点击整个卡片即可跳转，节省空间 */
+        .card-body {
+            padding: 1.25rem 0.5rem !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid px-4 py-5">
+    <header class="text-center mb-5">
+        <h1 class="fw-bold h2">个人功能门户</h1>
+        <p class="text-muted small">快速访问已部署的本地工具模块</p>
+    </header>
+
+    <div class="row row-cols-3 row-cols-sm-4 row-cols-md-5 row-cols-xl-6 g-3">
+        
+        {% for tool in tools %}
+        <div class="col">
+            <a href="{{ tool.url }}" class="card h-100 feature-card text-center shadow-sm">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="icon-box {{ tool.color }}">
+                        <i class="bi {{ tool.icon }}"></i>
+                    </div>
+                    <h3 class="card-title text-truncate w-100">{{ tool.title }}</h3>
+                    <p class="card-text text-muted d-none d-sm-block">{{ tool.description }}</p>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+
+        <div class="col">
+            <div class="card h-100 border-0 text-center shadow-sm" style="background: rgba(0,0,0,0.03); border: 1px dashed #ccc !important;">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="icon-box text-secondary">
+                        <i class="bi bi-plus-lg"></i>
+                    </div>
+                    <h3 class="card-title text-muted">新增</h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

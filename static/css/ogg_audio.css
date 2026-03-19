@@ -1,0 +1,104 @@
+:root {
+    --primary: #6366f1;
+    --secondary: #64748b;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.player-card {
+    background: var(--card);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+header h2 { margin-top: 0; color: var(--primary); }
+header p { color: var(--secondary); font-size: 0.9rem; }
+
+.control-group {
+    margin: 2rem 0;
+    text-align: left;
+}
+
+select {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    background-color: #fff;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+select:focus { border-color: var(--primary); }
+
+.audio-visualizer {
+    background: #f1f5f9;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    font-weight: 500;
+    color: var(--primary);
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-secondary { background: var(--secondary); color: white; }
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 在原有 style.css 末尾添加或覆盖 */
+
+.audio-visualizer #status-text {
+    transition: all 0.3s ease;
+}
+
+/* 当正在播放时，状态文字颜色略微跳动，增强交互感 */
+.audio-visualizer #status-text.playing {
+    color: var(--primary);
+    text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+    font-size: 1.1rem;
+}
+
+/* 优化下拉框，防止长路径溢出 */
+select {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}

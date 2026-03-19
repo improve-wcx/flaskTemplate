@@ -1,0 +1,273 @@
+/* 全局变量与重置 */
+:root {
+    --primary: #2ecc71;
+    --primary-dark: #27ae60;
+    --info: #3498db;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --bg: #f0f2f5;
+    --text: #2d3436;
+    --text-light: #636e72;
+    --border: #dfe6e9;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.clock {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--info);
+    background: #fff;
+    padding: 8px 15px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+    margin-bottom: 25px;
+}
+
+.section-title {
+    margin: 0 0 20px 0;
+    font-size: 1.1rem;
+    color: var(--text);
+    border-left: 4px solid var(--info);
+    padding-left: 12px;
+}
+
+/* 表单布局 */
+.form-container { display: flex; flex-direction: column; gap: 15px; }
+
+.input-row { display: flex; gap: 15px; }
+
+.time-inputs {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 15px;
+    background: #fafafa;
+}
+
+.time-inputs input {
+    width: 45px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 1.1rem;
+    outline: none;
+}
+
+.time-inputs .sep { font-weight: bold; color: var(--text-light); }
+
+.custom-select {
+    flex: 1;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    outline: none;
+    cursor: pointer;
+}
+
+.action-row { display: flex; gap: 15px; height: 90px; }
+
+.custom-textarea {
+    flex: 1;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    resize: none;
+    outline: none;
+}
+
+/* 按钮通用样式 */
+.btn {
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-add {
+    width: 120px;
+    background: var(--primary);
+    color: white;
+    font-size: 1rem;
+}
+
+.btn-add:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+/* 表格布局优化 */
+.table-wrapper { overflow-x: auto; }
+
+.task-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* 固定布局，防止内容撑宽 */
+}
+
+.task-table th, .task-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.task-table th {
+    background: #f8f9fa;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+/* 状态样式 */
+.status-running { background-color: rgba(46, 204, 113, 0.05); }
+.status-completed { color: var(--text-light); opacity: 0.7; }
+
+/* 倒计时文字醒目设计 */
+.countdown-text {
+    font-family: 'Monaco', monospace;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--text);
+}
+
+.status-running .countdown-text {
+    color: var(--primary);
+    font-size: 1.3rem;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink { 50% { opacity: 0.7; } }
+
+/* 备注省略号 */
+.remark-cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 操作列按钮容器 */
+.btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    min-width: 60px;
+}
+
+.btn-start { background: var(--primary); color: white; }
+.btn-pause { background: var(--info); color: white; }
+.btn-delete { background: #eee; color: var(--danger); }
+
+.btn:disabled { background: #eee !important; color: #ccc !important; cursor: not-allowed; }
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .input-row, .action-row { flex-direction: column; height: auto; }
+    .btn-add { width: 100%; height: 50px; }
+}
+
+/* [新增] 任务列表标题栏布局 */
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* 将原本 section-title 的 margin-bottom 移到这里 */
+.list-header .section-title {
+    margin: 0; 
+}
+
+/* [新增] 数据管理按钮组样式 */
+.data-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-light);
+    font-size: 0.85rem;
+    padding: 6px 15px;
+}
+
+.btn-outline:hover {
+    background: #f8f9fa;
+    border-color: var(--text-light);
+    color: var(--text);
+}
+
+/* ==========================================
+   试听按钮专属样式
+   ========================================== */
+.btn-preview {
+    background-color: transparent;
+    border: 2px solid var(--info);
+    color: var(--info);
+    padding: 0 15px;
+    font-size: 0.95rem;
+    white-space: nowrap; /* 防止按钮文字换行 */
+}
+
+.btn-preview:hover {
+    background-color: var(--info);
+    color: white;
+}
+
+/* 试听播放中变成“停止”按钮的样式 */
+.btn-preview.playing {
+    background-color: var(--warning);
+    border-color: var(--warning);
+    color: white;
+}
+
+.btn-preview.playing:hover {
+    background-color: #e67e22; /* 更深的橙色 */
+}
+
+/* 响应式调整，确保移动端不会太拥挤 */
+@media (max-width: 768px) {
+    .btn-preview {
+        width: 100%;
+        height: 40px;
+        margin-top: 10px;
+    }
+}
