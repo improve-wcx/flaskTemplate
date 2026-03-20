@@ -13,13 +13,7 @@
     <header>
         <nav class="navbar">
             <div class="container">
-                <a href="{{ url_for('main.index') }}" class="logo">
-                    <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Logo" class="logo-img">
-                    Flask App
-                </a>
                 <ul class="nav-menu">
-                    <li><a href="{{ url_for('main.index') }}">首页</a></li>
-                    <li><a href="{{ url_for('rel_map.relationship_map') }}">关系图</a></li>
                     <li><a href="{{ url_for('api.list_apis') }}">API 列表</a></li>
                 </ul>
             </div>

@@ -16,6 +16,7 @@ from flask import Blueprint, jsonify, request
 from google.protobuf.json_format import MessageToDict, ParseDict
 
 from app.proto import common_pb2, demo_pb2
+from app.api_registry import register_api
 
 # 创建蓝图
 demo_protobuf_bp = Blueprint("demo_protobuf", __name__, url_prefix="/api/v1/demo")
@@ -29,6 +30,7 @@ def generate_request_id():
 
 
 @demo_protobuf_bp.route("/hello", methods=["GET"])
+@register_api(path="/api/v1/demo/hello", method="GET", category="Protobuf 演示", description="GET 示例：简单问候")
 def hello_get():
     """
     GET 示例：简单问候
@@ -56,6 +58,7 @@ def hello_get():
 
 
 @demo_protobuf_bp.route("/hello", methods=["POST"])
+@register_api(path="/api/v1/demo/hello", method="POST", category="Protobuf 演示", description="POST 示例：带参数的问候")
 def hello_post():
     """
     POST 示例：带参数的问候
@@ -102,6 +105,7 @@ def hello_post():
 
 
 @demo_protobuf_bp.route("/user/<user_id>", methods=["GET"])
+@register_api(path="/api/v1/demo/user/<user_id>", method="GET", category="Protobuf 演示", description="GET 示例：获取用户信息 (RESTful)")
 def get_user(user_id):
     """
     GET 示例：获取用户信息 (RESTful)
@@ -180,6 +184,7 @@ def get_user(user_id):
 
 
 @demo_protobuf_bp.route("/users", methods=["POST"])
+@register_api(path="/api/v1/demo/users", method="POST", category="Protobuf 演示", description="POST 示例：获取用户列表 (展示 repeated 字段)")
 def list_users():
     """
     POST 示例：获取用户列表 (展示 repeated 字段)

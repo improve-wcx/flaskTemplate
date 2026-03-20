@@ -15,6 +15,7 @@ from app.routes.main import main_bp
 from app.routes.rel_map import rel_map_bp
 from app.routes.static_resources import static_bp
 from app.routes.text_submission import text_submission_bp
+from app.routes.demo_protobuf import demo_protobuf_bp
 from config import get_config
 from utils.logger import configure_logger_paths, setup_logger
 
@@ -26,6 +27,7 @@ blueprint_categories = {
     "rel_map": "关系图",
     "admin": "管理",
     "text_submission": "文本共享",
+    "demo_protobuf": "Protobuf 演示",
 }
 
 
@@ -68,6 +70,11 @@ def create_app(config_name=None):
 
     # Create Flask app
     app = Flask(__name__)
+    # Ensure JavaScript files are served with the correct MIME type.
+    # The default mimetypes mapping may return "text/javascript" which
+    # causes the test to fail. Register the proper type explicitly.
+    import mimetypes
+    mimetypes.add_type('application/javascript', '.js', strict=True)
     logger.info("Flask app instance created")
 
     # Apply configuration
@@ -140,13 +147,15 @@ def create_app(config_name=None):
     logger.info("Registered blueprint: rel_map_bp")
     app.register_blueprint(text_submission_bp)
     logger.info("Registered blueprint: text_submission_bp")
+    app.register_blueprint(demo_protobuf_bp)
+    logger.info("Registered blueprint: demo_protobuf_bp")
     # app.register_blueprint(admin_bp)  # Uncomment when needed
 
     # Auto-collect blueprint routes
     logger.info("Collecting routes from blueprints...")
     _collect_routes(main_bp, blueprint_categories["main"])
     _collect_routes(api_bp, blueprint_categories["api"])
-    # demo_protobuf blueprint has been removed from the project.
+    _collect_routes(demo_protobuf_bp, blueprint_categories["demo_protobuf"])
     _collect_routes(static_bp, blueprint_categories["static_bp"])
     _collect_routes(rel_map_bp, blueprint_categories["rel_map"])
     _collect_routes(text_submission_bp, blueprint_categories["text_submission"])

@@ -3,27 +3,29 @@
 {% block title %}首页 - Flask Application{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <h1 class="display-4 text-center mb-4">功能导航</h1>
-    <p class="lead text-center text-muted mb-5">请选择您想使用的功能</p>
-    <div class="row row-cols-1 row-cols-md-2 g-4">
+<div class="container py-4">
+    <div class="row row-cols-1 row-cols-md-2 g-3">
         <!-- 关系管理 -->
         <div class="col">
             <a href="{{ url_for('rel_map.relationship_map') }}" class="text-decoration-none">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="me-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="18" cy="5" r="3"></circle>
-                                <circle cx="6" cy="12" r="3"></circle>
-                                <circle cx="18" cy="19" r="3"></circle>
-                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                            </svg>
-                        </div>
-                        <div>
-                            <h5 class="card-title mb-1">关系管理</h5>
-                            <p class="card-text text-muted mb-0">交互式关系图工具，可视化展示实体间的关系网络</p>
+                <div class="card h-100 border-0">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <circle cx="18" cy="5" r="3"></circle>
+                                    <circle cx="6" cy="12" r="3"></circle>
+                                    <circle cx="18" cy="19" r="3"></circle>
+                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                                </svg>
+                            </div>
+                            <div>
+                                <h6 class="card-title mb-2">关系管理</h6>
+                                <small class="text-muted">交互式关系图工具</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -33,17 +35,22 @@
         <!-- 文本共享 -->
         <div class="col">
             <a href="{{ url_for('text_submission.text_submission_page') }}" class="text-decoration-none">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="me-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                                <polyline points="17 21 12 16 7 21"></polyline>
-                            </svg>
-                        </div>
-                        <div>
-                            <h5 class="card-title mb-1">文本共享</h5>
-                            <p class="card-text text-muted mb-0">提交、搜索、浏览文本内容的系统</p>
+                <div class="card h-100 border-0">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M21 15a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z">
+                                    </path>
+                                    <polyline points="17 21 12 16 7 21"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <h6 class="card-title mb-2">文本共享</h6>
+                                <small class="text-muted">提交、搜索、浏览文本内容的系统</small>
+                            </div>
                         </div>
                     </div>
                 </div>
